@@ -1,0 +1,118 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 16px;
+  z-index: 1000;
+  transition: all 0.5s ease;
+}
+
+.header.dark {
+  background: linear-gradient(180deg, rgba(5, 8, 25, 0.98) 0%, rgba(10, 15, 44, 0.95) 100%);
+  border-bottom: 1px solid rgba(100, 130, 255, 0.2);
+}
+
+.header.light {
+  background: linear-gradient(180deg, rgba(240, 248, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  font-size: 22px;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(10deg); }
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.balance-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.header.dark .balance-btn {
+  background: linear-gradient(135deg, rgba(100, 130, 255, 0.2) 0%, rgba(150, 100, 255, 0.3) 100%);
+  color: #fff;
+  border: 1px solid rgba(150, 130, 255, 0.3);
+}
+
+.header.light .balance-btn {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(251, 191, 36, 0.2) 100%);
+  color: #1e40af;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.balance-btn:hover {
+  transform: scale(1.05);
+}
+
+.header.dark .balance-btn:hover {
+  box-shadow: 0 4px 20px rgba(100, 130, 255, 0.4);
+}
+
+.header.light .balance-btn:hover {
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.balance-icon {
+  font-size: 16px;
+}
+
+.balance-amount {
+  min-width: 42px;
+}
+
+.balance-plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.header.dark .balance-plus {
+  background: rgba(100, 255, 150, 0.3);
+  color: #90ffc0;
+}
+
+.header.light .balance-plus {
+  background: rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+}
