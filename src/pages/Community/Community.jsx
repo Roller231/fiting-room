@@ -1,55 +1,57 @@
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import './Community.css';
 
 const Community = () => {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
 
   const socialLinks = [
     {
       id: 'telegram',
       icon: '📢',
-      title: 'Telegram канал',
-      desc: 'Новости и обновления',
+      titleKey: 'community.telegram',
+      descKey: 'community.telegramDesc',
       color: '#0088cc',
       url: 'https://t.me/fitroom'
     },
     {
       id: 'chat',
       icon: '💬',
-      title: 'Чат комьюнити',
-      desc: 'Общайся с участниками',
+      titleKey: 'community.chat',
+      descKey: 'community.chatDesc',
       color: '#6366f1',
       url: 'https://t.me/fitroom_chat'
     },
     {
       id: 'support',
       icon: '🆘',
-      title: 'Поддержка',
-      desc: 'Помощь 24/7',
+      titleKey: 'community.support',
+      descKey: 'community.supportDesc',
       color: '#22c55e',
       url: 'https://t.me/fitroom_support'
     },
     {
       id: 'instagram',
       icon: '📸',
-      title: 'Instagram',
-      desc: 'Фото и истории',
+      titleKey: 'community.instagram',
+      descKey: 'community.instagramDesc',
       color: '#e4405f',
       url: 'https://instagram.com/fitroom'
     },
     {
       id: 'youtube',
       icon: '🎬',
-      title: 'YouTube',
-      desc: 'Видео и туториалы',
+      titleKey: 'community.youtube',
+      descKey: 'community.youtubeDesc',
       color: '#ff0000',
       url: 'https://youtube.com/fitroom'
     },
     {
       id: 'tiktok',
       icon: '🎵',
-      title: 'TikTok',
-      desc: 'Тренды и челленджи',
+      titleKey: 'community.tiktok',
+      descKey: 'community.tiktokDesc',
       color: '#000000',
       url: 'https://tiktok.com/@fitroom'
     }
@@ -79,12 +81,12 @@ const Community = () => {
   return (
     <div className={`community ${isDark ? 'dark' : 'light'}`}>
       <div className="community-header">
-        <h1>👥 Комьюнити</h1>
-        <p>Присоединяйся к нашему сообществу</p>
+        <h1>👥 {t('community.title')}</h1>
+        <p>{t('community.subtitle')}</p>
       </div>
 
       <div className="social-section">
-        <h2>🔗 Мы в соцсетях</h2>
+        <h2>🔗 {t('community.social')}</h2>
         <div className="social-grid">
           {socialLinks.map(link => (
             <a
@@ -97,8 +99,8 @@ const Community = () => {
             >
               <span className="social-icon">{link.icon}</span>
               <div className="social-info">
-                <span className="social-title">{link.title}</span>
-                <span className="social-desc">{link.desc}</span>
+                <span className="social-title">{t(link.titleKey)}</span>
+                <span className="social-desc">{t(link.descKey)}</span>
               </div>
               <span className="social-arrow">→</span>
             </a>
@@ -109,22 +111,22 @@ const Community = () => {
       <div className="stats-banner">
         <div className="stat-block">
           <span className="stat-number">50K+</span>
-          <span className="stat-text">Подписчиков</span>
+          <span className="stat-text">{t('community.subscribers')}</span>
         </div>
         <div className="stat-divider"></div>
         <div className="stat-block">
           <span className="stat-number">10K+</span>
-          <span className="stat-text">В чате</span>
+          <span className="stat-text">{t('community.inChat')}</span>
         </div>
         <div className="stat-divider"></div>
         <div className="stat-block">
           <span className="stat-number">24/7</span>
-          <span className="stat-text">Поддержка</span>
+          <span className="stat-text">{t('community.support')}</span>
         </div>
       </div>
 
       <div className="news-section">
-        <h2>📰 Новости</h2>
+        <h2>📰 {t('community.news')}</h2>
         <div className="news-list">
           {news.map(item => (
             <div key={item.id} className="news-card">
@@ -142,20 +144,20 @@ const Community = () => {
         <div className="invite-card">
           <span className="invite-icon">🎁</span>
           <div className="invite-content">
-            <h3>Пригласи друга</h3>
-            <p>Получи 50 💎 за каждого приглашённого друга</p>
+            <h3>{t('community.inviteFriend')}</h3>
+            <p>{t('community.inviteReward')}</p>
           </div>
-          <button className="invite-btn">Пригласить</button>
+          <button className="invite-btn">{t('community.invite')}</button>
         </div>
       </div>
 
       <div className="feedback-section">
-        <h2>📝 Обратная связь</h2>
+        <h2>📝 {t('community.feedback')}</h2>
         <div className="feedback-card">
-          <p>Есть идеи или предложения? Напиши нам!</p>
+          <p>{t('community.feedbackText')}</p>
           <button className="feedback-btn">
             <span>✉️</span>
-            <span>Написать</span>
+            <span>{t('community.write')}</span>
           </button>
         </div>
       </div>

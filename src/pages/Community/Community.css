@@ -60,6 +60,14 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 400px) {
+  .social-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .social-card {
@@ -70,6 +78,8 @@
   border-radius: 16px;
   text-decoration: none;
   transition: all 0.3s ease;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .community.dark .social-card {

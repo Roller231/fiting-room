@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
+import TopUpModal from '../../components/Modals/TopUpModal';
 import './Profile.css';
 
 const Profile = () => {
   const { isDark } = useTheme();
   const { user, updateProfile } = useUser();
+  const { t } = useLanguage();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ name: user.name, email: user.email });
   const [copied, setCopied] = useState(false);
+  const [showTopUp, setShowTopUp] = useState(false);
 
   const copyReferralCode = () => {
     navigator.clipboard.writeText(user.referralCode);
@@ -44,32 +48,32 @@ const Profile = () => {
               placeholder="Email"
             />
             <div className="edit-actions">
-              <button className="save-btn" onClick={handleSave}>Сохранить</button>
-              <button className="cancel-btn" onClick={() => setIsEditing(false)}>Отмена</button>
+              <button className="save-btn" onClick={handleSave}>{t('profile.save')}</button>
+              <button className="cancel-btn" onClick={() => setIsEditing(false)}>{t('profile.cancel')}</button>
             </div>
           </div>
         ) : (
           <div className="user-info">
             <h1>{user.name}</h1>
             <p>{user.email}</p>
-            <button className="edit-btn" onClick={() => setIsEditing(true)}>✏️ Редактировать</button>
+            <button className="edit-btn" onClick={() => setIsEditing(true)}>✏️ {t('profile.editProfile')}</button>
           </div>
         )}
       </div>
 
       <div className="balance-card">
         <div className="balance-info">
-          <span className="balance-label">Текущий баланс</span>
+          <span className="balance-label">{t('profile.currentBalance')}</span>
           <span className="balance-value">{user.balance} 💎</span>
         </div>
         <div className="balance-icon">💰</div>
       </div>
 
       <div className="referral-section">
-        <h2>🎁 Реферальная программа</h2>
+        <h2>🎁 {t('profile.referral')}</h2>
         <div className="referral-card">
           <div className="referral-code-block">
-            <span className="label">Ваш код</span>
+            <span className="label">{t('profile.yourCode')}</span>
             <div className="code-row">
               <span className="code">{user.referralCode}</span>
               <button className="copy-btn" onClick={copyReferralCode}>
@@ -81,68 +85,60 @@ const Profile = () => {
           <div className="referral-stats">
             <div className="stat">
               <span className="stat-value">{user.referrals}</span>
-              <span className="stat-label">Приглашено</span>
+              <span className="stat-label">{t('profile.invited')}</span>
             </div>
             <div className="stat">
               <span className="stat-value">{user.totalEarned} 💎</span>
-              <span className="stat-label">Заработано</span>
+              <span className="stat-label">{t('profile.earned')}</span>
             </div>
           </div>
           
           <p className="referral-hint">
-            Приглашайте друзей и получайте 50 💎 за каждого!
+            {t('profile.inviteHint')}
           </p>
         </div>
       </div>
 
       <div className="payment-section">
-        <h2>💳 Платёжные данные</h2>
-        <div className="payment-cards">
-          <div className="payment-card added">
-            <span className="card-icon">💳</span>
-            <div className="card-info">
-              <span className="card-number">•••• 4567</span>
-              <span className="card-type">Visa</span>
-            </div>
-            <span className="card-status">✓</span>
-          </div>
-          
-          <button className="add-card-btn">
-            <span>+</span>
-            <span>Добавить карту</span>
-          </button>
-        </div>
+        <h2>💎 {t('profile.balance')}</h2>
+        <button className="topup-btn" onClick={() => setShowTopUp(true)}>
+          <span className="topup-icon">💎</span>
+          <span>{t('profile.topUp')}</span>
+          <span className="topup-plus">+</span>
+        </button>
       </div>
 
       <div className="history-section">
-        <h2>📊 История операций</h2>
+        <h2>📊 {t('profile.history')}</h2>
         <div className="history-list">
           <div className="history-item">
             <div className="history-icon income">+</div>
             <div className="history-info">
-              <span className="history-title">Пополнение баланса</span>
-              <span className="history-date">Сегодня, 14:30</span>
+              <span className="history-title">{t('profile.topUpHistory')}</span>
+              <span className="history-date">{t('profile.today')}, 14:30</span>
             </div>
             <span className="history-amount income">+500 💎</span>
           </div>
           <div className="history-item">
             <div className="history-icon expense">-</div>
             <div className="history-info">
-              <span className="history-title">VIP Примерка</span>
-              <span className="history-date">Вчера, 18:45</span>
+              <span className="history-title">{t('profile.vipTryOn')}</span>
+              <span className="history-date">{t('profile.yesterday')}, 18:45</span>
             </div>
             <span className="history-amount expense">-25 💎</span>
           </div>
           <div className="history-item">
             <div className="history-icon income">+</div>
             <div className="history-info">
-              <span className="history-title">Реферальный бонус</span>
+              <span className="history-title">{t('profile.referralBonus')}</span>
               <span className="history-date">20.12.2024</span>
             </div>
             <span className="history-amount income">+50 💎</span>
           </div>
         </div>
       </div>
+
+      {showTopUp && <TopUpModal onClose={() => setShowTopUp(false)} />}
     </div>
   );
 };

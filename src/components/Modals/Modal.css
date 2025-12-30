@@ -289,3 +289,58 @@
   display: flex;
   gap: 12px;
 }
+
+@media (max-width: 400px) {
+  .modal {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .modal-header h2 {
+    font-size: 20px;
+  }
+
+  .topup-options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .topup-option {
+    padding: 12px 8px;
+    border-radius: 12px;
+  }
+
+  .topup-value {
+    font-size: 16px;
+  }
+
+  .topup-icon {
+    font-size: 14px;
+  }
+
+  .custom-amount {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .custom-amount input,
+  .promo-input input {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .custom-amount button,
+  .promo-input button {
+    padding: 12px 18px;
+    font-size: 14px;
+  }
+
+  .promo-input {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .promo-section h3 {
+    font-size: 14px;
+  }
+}

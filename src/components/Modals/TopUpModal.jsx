@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
 import './Modal.css';
 
 const TopUpModal = ({ onClose }) => {
   const { isDark } = useTheme();
   const { addBalance, applyPromoCode, user } = useUser();
+  const { t } = useLanguage();
   const [amount, setAmount] = useState('');
   const [promoCode, setPromoCode] = useState('');
   const [message, setMessage] = useState(null);
@@ -14,7 +16,7 @@ const TopUpModal = ({ onClose }) => {
 
   const handleTopUp = (value) => {
     addBalance(value);
-    setMessage({ type: 'success', text: `Баланс пополнен на ${value} 💎` });
+    setMessage({ type: 'success', text: `${t('topUp.success')} ${value} 💎` });
     setTimeout(() => {
       setMessage(null);
       onClose();
@@ -25,10 +27,10 @@ const TopUpModal = ({ onClose }) => {
     if (!promoCode.trim()) return;
     const result = applyPromoCode(promoCode);
     if (result.success) {
-      setMessage({ type: 'success', text: `Промокод активирован! +${result.amount} 💎` });
+      setMessage({ type: 'success', text: `${t('topUp.promoSuccess')} +${result.amount} 💎` });
       setPromoCode('');
     } else {
-      setMessage({ type: 'error', text: 'Промокод недействителен' });
+      setMessage({ type: 'error', text: t('topUp.promoError') });
     }
     setTimeout(() => setMessage(null), 2000);
   };
@@ -39,8 +41,8 @@ const TopUpModal = ({ onClose }) => {
         <button className="modal-close" onClick={onClose}>✕</button>
         
         <div className="modal-header">
-          <h2>💎 Пополнение баланса</h2>
-          <p className="current-balance">Текущий баланс: <strong>{user.balance}</strong></p>
+          <h2>💎 {t('topUp.title')}</h2>
+          <p className="current-balance">{t('topUp.currentBalance')} <strong>{user.balance}</strong></p>
         </div>
 
         {message && (
@@ -65,7 +67,7 @@ const TopUpModal = ({ onClose }) => {
         <div className="custom-amount">
           <input
             type="number"
-            placeholder="Своя сумма"
+            placeholder={t('topUp.customAmount')}
             value={amount}
             onChange={e => setAmount(e.target.value)}
           />
@@ -73,20 +75,20 @@ const TopUpModal = ({ onClose }) => {
             onClick={() => amount > 0 && handleTopUp(Number(amount))}
             disabled={!amount || amount <= 0}
           >
-            Пополнить
+            {t('topUp.topUpBtn')}
           </button>
         </div>
 
         <div className="promo-section">
-          <h3>🎁 Промокод</h3>
+          <h3>🎁 {t('topUp.promo')}</h3>
           <div className="promo-input">
             <input
               type="text"
-              placeholder="Введите промокод"
+              placeholder={t('topUp.enterPromo')}
               value={promoCode}
               onChange={e => setPromoCode(e.target.value.toUpperCase())}
             />
-            <button onClick={handlePromo}>Применить</button>
+            <button onClick={handlePromo}>{t('topUp.apply')}</button>
           </div>
         </div>
       </div>

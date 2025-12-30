@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
 import './Fitting.css';
 
 const Fitting = () => {
   const { isDark } = useTheme();
   const { subtractBalance } = useUser();
+  const { t } = useLanguage();
   const [userPhoto, setUserPhoto] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedItem, setSelectedItem] = useState(null);
@@ -13,12 +15,12 @@ const Fitting = () => {
   const [result, setResult] = useState(null);
 
   const categories = [
-    { id: 'all', name: 'Все', icon: '🎯' },
-    { id: 'tops', name: 'Верх', icon: '👕' },
-    { id: 'bottoms', name: 'Низ', icon: '👖' },
-    { id: 'dresses', name: 'Платья', icon: '👗' },
-    { id: 'outerwear', name: 'Верхняя', icon: '🧥' },
-    { id: 'shoes', name: 'Обувь', icon: '👟' }
+    { id: 'all', nameKey: 'fitting.categories.all', icon: '🎯' },
+    { id: 'tops', nameKey: 'fitting.categories.tops', icon: '👕' },
+    { id: 'bottoms', nameKey: 'fitting.categories.bottoms', icon: '👖' },
+    { id: 'dresses', nameKey: 'fitting.categories.dresses', icon: '👗' },
+    { id: 'outerwear', nameKey: 'fitting.categories.outerwear', icon: '🧥' },
+    { id: 'shoes', nameKey: 'fitting.categories.shoes', icon: '👟' }
   ];
 
   const clothingItems = [
@@ -49,7 +51,7 @@ const Fitting = () => {
     if (!userPhoto || !selectedItem) return;
     
     if (!subtractBalance(selectedItem.price)) {
-      alert('Недостаточно средств! Пополните баланс.');
+      alert(t('common.insufficientFunds'));
       return;
     }
 
@@ -66,8 +68,8 @@ const Fitting = () => {
   return (
     <div className={`fitting ${isDark ? 'dark' : 'light'}`}>
       <div className="fitting-header">
-        <h1>👗 Примерочная</h1>
-        <p>Загрузите фото и выберите одежду</p>
+        <h1>👗 {t('fitting.title')}</h1>
+        <p>{t('fitting.subtitle')}</p>
       </div>
 
       <div className="photo-upload-section">
@@ -77,7 +79,7 @@ const Fitting = () => {
           ) : (
             <div className="upload-placeholder">
               <span className="upload-icon">📷</span>
-              <span>Загрузить фото</span>
+              <span>{t('fitting.uploadPhoto')}</span>
             </div>
           )}
         </div>
@@ -98,7 +100,7 @@ const Fitting = () => {
             onClick={() => setSelectedCategory(cat.id)}
           >
             <span>{cat.icon}</span>
-            <span>{cat.name}</span>
+            <span>{t(cat.nameKey)}</span>
           </button>
         ))}
       </div>
@@ -125,10 +127,10 @@ const Fitting = () => {
         onClick={handleTryOn}
       >
         {isProcessing ? (
-          <span className="processing">⏳ Обработка...</span>
+          <span className="processing">⏳ {t('fitting.processing')}</span>
         ) : (
           <>
-            <span>Примерить</span>
+            <span>{t('fitting.tryOn')}</span>
             {selectedItem && <span className="btn-price">{selectedItem.price} 💎</span>}
           </>
         )}
@@ -137,14 +139,14 @@ const Fitting = () => {
       {result && (
         <div className="result-modal" onClick={() => setResult(null)}>
           <div className="result-content" onClick={e => e.stopPropagation()}>
-            <h3>✨ Результат примерки</h3>
+            <h3>✨ {t('fitting.result')}</h3>
             <div className="result-image">
               <img src={result.image} alt="Результат" />
               <div className="result-overlay">
                 <span>{result.item.name}</span>
               </div>
             </div>
-            <button onClick={() => setResult(null)}>Закрыть</button>
+            <button onClick={() => setResult(null)}>{t('fitting.close')}</button>
           </div>
         </div>
       )}

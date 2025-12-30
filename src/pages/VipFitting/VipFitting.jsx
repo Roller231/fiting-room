@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useUser } from '../../context/UserContext';
+import { useLanguage } from '../../context/LanguageContext';
 import './VipFitting.css';
 
 const VipFitting = () => {
   const { isDark } = useTheme();
   const { subtractBalance } = useUser();
+  const { t } = useLanguage();
   const [userPhoto, setUserPhoto] = useState(null);
   const [selectedStore, setSelectedStore] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -62,7 +64,7 @@ const VipFitting = () => {
     if (!userPhoto || !selectedItem) return;
     
     if (!subtractBalance(selectedItem.price)) {
-      alert('Недостаточно средств! Пополните баланс.');
+      alert(t('common.insufficientFunds'));
       return;
     }
 
@@ -76,8 +78,8 @@ const VipFitting = () => {
   return (
     <div className={`vip-fitting ${isDark ? 'dark' : 'light'}`}>
       <div className="vip-header">
-        <h1>👑 VIP Примерочная</h1>
-        <p>Одежда из топовых магазинов</p>
+        <h1>👑 {t('vip.title')}</h1>
+        <p>{t('vip.subtitle')}</p>
       </div>
 
       <div className="photo-section">
@@ -87,7 +89,7 @@ const VipFitting = () => {
           ) : (
             <div className="upload-placeholder">
               <span>📷</span>
-              <span>Загрузить фото</span>
+              <span>{t('fitting.uploadPhoto')}</span>
             </div>
           )}
         </div>
@@ -95,7 +97,7 @@ const VipFitting = () => {
       </div>
 
       <div className="stores-section">
-        <h2>Выберите магазин</h2>
+        <h2>{t('vip.selectStore')}</h2>
         <div className="stores-grid">
           {stores.map(store => (
             <button
@@ -115,7 +117,7 @@ const VipFitting = () => {
 
       {selectedStore && (
         <div className="items-section">
-          <h2>Коллекция {stores.find(s => s.id === selectedStore)?.name}</h2>
+          <h2>{t('vip.collection')} {stores.find(s => s.id === selectedStore)?.name}</h2>
           <div className="items-grid">
             {storeItems[selectedStore]?.map(item => (
               <div
@@ -139,7 +141,7 @@ const VipFitting = () => {
         disabled={!userPhoto || !selectedItem || isProcessing}
         onClick={handleTryOn}
       >
-        {isProcessing ? '⏳ Обработка VIP...' : `Примерить ${selectedItem ? `(${selectedItem.price} 💎)` : ''}`}
+        {isProcessing ? `⏳ ${t('vip.processing')}` : `${t('vip.tryOn')} ${selectedItem ? `(${selectedItem.price} 💎)` : ''}`}
       </button>
     </div>
   );

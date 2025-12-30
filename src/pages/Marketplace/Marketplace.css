@@ -298,7 +298,8 @@
 .product-image-card img {
   width: 100%;
   height: 160px;
-  object-fit: cover;
+  object-fit: contain;
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .try-image-btn {
@@ -379,4 +380,210 @@
 
 .marketplace.light .info-text p {
   color: rgba(30, 64, 175, 0.7);
+}
+
+.product-image-wrapper {
+  position: relative;
+}
+
+.platform-badge-small {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.platform-badge-small.wildberries {
+  background: rgba(203, 17, 171, 0.9);
+  color: #fff;
+}
+
+.platform-badge-small.ozon {
+  background: rgba(0, 91, 255, 0.9);
+  color: #fff;
+}
+
+.platform-badge-small.маркетплейс {
+  background: rgba(100, 130, 255, 0.9);
+  color: #fff;
+}
+
+.product-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.product-actions .try-image-btn {
+  flex: 1;
+  border-radius: 0 0 0 14px;
+}
+
+.copy-link-btn {
+  width: 40px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  border-radius: 0 0 14px 0;
+}
+
+.marketplace.dark .copy-link-btn {
+  background: rgba(100, 130, 255, 0.4);
+  color: #fff;
+}
+
+.marketplace.light .copy-link-btn {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.copy-link-btn:hover {
+  transform: scale(1.05);
+}
+
+.result-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.result-content {
+  background: linear-gradient(145deg, rgba(30, 40, 80, 0.95) 0%, rgba(20, 30, 60, 0.95) 100%);
+  border-radius: 24px;
+  padding: 24px;
+  max-width: 350px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid rgba(100, 130, 255, 0.3);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.result-content h3 {
+  color: #fff;
+  margin: 0 0 20px;
+  font-size: 20px;
+}
+
+.result-image {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.result-image img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+}
+
+.result-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: #fff;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.result-platform {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+.result-platform.wildberries {
+  background: #cb11ab;
+}
+
+.result-platform.ozon {
+  background: #005bff;
+}
+
+.result-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.open-store-btn {
+  display: block;
+  padding: 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #cb11ab 0%, #005bff 100%);
+  color: #fff;
+}
+
+.open-store-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(203, 17, 171, 0.4);
+}
+
+.copy-result-link {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(100, 130, 255, 0.3);
+  background: rgba(100, 130, 255, 0.1);
+  color: #c7d2fe;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.copy-result-link:hover {
+  background: rgba(100, 130, 255, 0.2);
+}
+
+.close-result-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.close-result-btn:hover {
+  transform: scale(1.02);
 }

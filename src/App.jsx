@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { UserProvider } from './context/UserContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { initTelegram } from './telegram/initTelegram';
 
 import ThemeSelector from './components/ThemeSelector/ThemeSelector';
@@ -120,7 +121,9 @@ function App() {
   return (
     <ThemeProvider>
       <UserProvider>
-        <AppContent />
+        <LanguageProvider>
+          <AppContent />
+        </LanguageProvider>
       </UserProvider>
     </ThemeProvider>
   );

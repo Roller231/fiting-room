@@ -1,39 +1,41 @@
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import './Home.css';
 
 const Home = ({ setActiveTab }) => {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
 
   const features = [
     {
       id: 'basic',
       icon: '👗',
-      title: 'Примерочная',
-      desc: 'Примерь одежду из каталога',
+      titleKey: 'home.fitting',
+      descKey: 'home.fittingDesc',
       price: '10 💎',
       tab: 'fitting'
     },
     {
       id: 'vip',
       icon: '👑',
-      title: 'VIP Примерочная',
-      desc: 'Выбери одежду из топ-магазинов',
+      titleKey: 'home.vipFitting',
+      descKey: 'home.vipDesc',
       price: '25 💎',
       tab: 'vip'
     },
     {
       id: 'marketplace',
       icon: '🛒',
-      title: 'WB / Ozon',
-      desc: 'Примерь товар по ссылке',
+      titleKey: 'home.wbOzon',
+      descKey: 'home.wbOzonDesc',
       price: '30 💎',
       tab: 'marketplace'
     },
     {
       id: 'exclusive',
       icon: '⭐',
-      title: 'Эксклюзив',
-      desc: 'Загрузи свою одежду + промт AI',
+      titleKey: 'home.exclusive',
+      descKey: 'home.exclusiveDesc',
       price: '50 💎',
       tab: 'exclusive'
     }
@@ -43,8 +45,8 @@ const Home = ({ setActiveTab }) => {
     <div className={`home ${isDark ? 'dark' : 'light'}`}>
       <div className="home-banner">
         <div className="banner-content">
-          <h1>Добро пожаловать в<br/><span>FitRoom</span></h1>
-          <p>Примеряй одежду онлайн с помощью AI</p>
+          <h1>{t('home.welcome')}<br/><span>FitRoom</span></h1>
+          <p>{t('home.subtitle')}</p>
         </div>
         <div className="banner-decoration">
           {isDark ? '🌌' : '☁️'}
@@ -52,7 +54,7 @@ const Home = ({ setActiveTab }) => {
       </div>
 
       <section className="features-section">
-        <h2>Выберите режим</h2>
+        <h2>{t('home.selectMode')}</h2>
         <div className="features-grid">
           {features.map(feature => (
             <button 
@@ -61,8 +63,8 @@ const Home = ({ setActiveTab }) => {
               onClick={() => setActiveTab(feature.tab)}
             >
               <span className="feature-icon">{feature.icon}</span>
-              <h3>{feature.title}</h3>
-              <p>{feature.desc}</p>
+              <h3>{t(feature.titleKey)}</h3>
+              <p>{t(feature.descKey)}</p>
               <span className="feature-price">{feature.price}</span>
             </button>
           ))}
@@ -73,8 +75,8 @@ const Home = ({ setActiveTab }) => {
         <div className="promo-content">
           <span className="promo-icon">🎁</span>
           <div>
-            <h3>Первая примерка бесплатно!</h3>
-            <p>Используй промокод: <strong>WELCOME100</strong></p>
+            <h3>{t('home.firstFree')}</h3>
+            <p>{t('home.usePromo')} <strong>WELCOME100</strong></p>
           </div>
         </div>
       </section>
@@ -82,15 +84,15 @@ const Home = ({ setActiveTab }) => {
       <section className="stats-section">
         <div className="stat-item">
           <span className="stat-value">50K+</span>
-          <span className="stat-label">Пользователей</span>
+          <span className="stat-label">{t('home.users')}</span>
         </div>
         <div className="stat-item">
           <span className="stat-value">200K+</span>
-          <span className="stat-label">Примерок</span>
+          <span className="stat-label">{t('home.tryOns')}</span>
         </div>
         <div className="stat-item">
           <span className="stat-value">98%</span>
-          <span className="stat-label">Довольны</span>
+          <span className="stat-label">{t('home.satisfied')}</span>
         </div>
       </section>
     </div>

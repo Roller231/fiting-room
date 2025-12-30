@@ -202,7 +202,10 @@
 }
 
 .lang-flag {
-  font-size: 24px;
+  width: 24px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 3px;
 }
 
 .lang-name {
@@ -212,7 +215,7 @@
 }
 
 .settings.dark .lang-name {
-  color: #e2e8f0;
+  color: #a5b4fc;
 }
 
 .settings.light .lang-name {
