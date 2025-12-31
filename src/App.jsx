@@ -110,6 +110,15 @@ const AppContent = () => {
         )}
       </div>
 
+      <div className="center-bg">
+  {isDark ? (
+    <img src="/icons/bg-dark.png" alt="" />
+  ) : (
+    <img src="/icons/bg-light.png" alt="" />
+  )}
+</div>
+
+
       <Header />
       <main className="main-content">{renderPage()}</main>
       <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />

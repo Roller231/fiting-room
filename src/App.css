@@ -26,6 +26,67 @@
   overflow: hidden;
 }
 
+.center-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 1; /* между фоном и контентом */
+  pointer-events: none;
+
+  display: flex;
+  align-items: center;   /* по вертикали */
+  justify-content: center; /* по горизонтали */
+}
+.center-bg img {
+  pointer-events: none;
+
+  filter: blur(0.2px);
+  transition: opacity 0.3s ease;
+}
+
+.app.light .center-bg img {
+  opacity: 0.6;
+}
+
+.app.dark .center-bg img {
+  opacity: 0.3;
+}
+
+@media (max-width: 768px) {
+  .center-bg img {
+    width: 100vw;      /* 🔥 ВСЯ ШИРИНА */
+    height: 100vh;
+    max-height: 100vh;
+  }
+}
+
+@media (min-width: 769px) {
+  .center-bg img {
+    height: 100vh;     /* 🔥 ВСЯ ВЫСОТА */
+    width: auto;
+    max-width: 90vw;
+  }
+}
+
+@media (min-width: 769px) {
+  .center-bg img {
+    mask-image: radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,1) 55%,
+      rgba(0,0,0,0.85) 65%,
+      rgba(0,0,0,0.4) 80%,
+      rgba(0,0,0,0) 100%
+    );
+
+    -webkit-mask-image: radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,1) 55%,
+      rgba(0,0,0,0.85) 65%,
+      rgba(0,0,0,0.4) 80%,
+      rgba(0,0,0,0) 100%
+    );
+  }
+}
+
 /* Галактическая тема - звёзды */
 .stars-bg {
   position: absolute;
@@ -105,7 +166,7 @@
 
 .main-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 500px;
   margin: 0 auto;
 }
