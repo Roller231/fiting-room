@@ -9,7 +9,8 @@ const Home = ({ setActiveTab }) => {
   const features = [
     {
       id: 'basic',
-      icon: '👗',
+      iconDark: '👗',
+      iconLight: '/icons/fitting.jpg',
       titleKey: 'home.fitting',
       descKey: 'home.fittingDesc',
       price: '10 💎',
@@ -17,7 +18,8 @@ const Home = ({ setActiveTab }) => {
     },
     {
       id: 'vip',
-      icon: '👑',
+      iconDark: '👑',
+      iconLight: '../../icons/vip.jpg',
       titleKey: 'home.vipFitting',
       descKey: 'home.vipDesc',
       price: '25 💎',
@@ -25,7 +27,8 @@ const Home = ({ setActiveTab }) => {
     },
     {
       id: 'marketplace',
-      icon: '🛒',
+      iconDark: '🛒',
+      iconLight: '/icons/marketplace.jpg',
       titleKey: 'home.wbOzon',
       descKey: 'home.wbOzonDesc',
       price: '30 💎',
@@ -33,13 +36,15 @@ const Home = ({ setActiveTab }) => {
     },
     {
       id: 'exclusive',
-      icon: '⭐',
+      iconDark: '⭐',
+      iconLight: '/icons/exclusive.jpg',
       titleKey: 'home.exclusive',
       descKey: 'home.exclusiveDesc',
       price: '50 💎',
       tab: 'exclusive'
     }
   ];
+  
 
   return (
     <div className={`home ${isDark ? 'dark' : 'light'}`}>
@@ -62,10 +67,15 @@ const Home = ({ setActiveTab }) => {
               className="feature-card"
               onClick={() => setActiveTab(feature.tab)}
             >
-              <span className="feature-icon">{feature.icon}</span>
+<span className="feature-icon">
+  {isDark ? (
+    feature.iconDark
+  ) : (
+    <img src={feature.iconLight} alt="" />
+  )}
+</span>
               <h3>{t(feature.titleKey)}</h3>
               <p>{t(feature.descKey)}</p>
-              <span className="feature-price">{feature.price}</span>
             </button>
           ))}
         </div>
