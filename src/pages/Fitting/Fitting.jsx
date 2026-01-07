@@ -1,69 +1,146 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { useUser } from '../../context/UserContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { fetchCategories, fetchProducts } from '../../api/catalogApi';
 import './Fitting.css';
+import { useUser } from '../../context/UserContext';
 
 const Fitting = () => {
   const { isDark } = useTheme();
-  const { subtractBalance } = useUser();
   const { t } = useLanguage();
-  const [userPhoto, setUserPhoto] = useState(null);
+
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedItem, setSelectedItem] = useState(null);
+
+  const [userPhoto, setUserPhoto] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState(null);
+  const [userPhotoFile, setUserPhotoFile] = useState(null);
+  const [userPhotoPreview, setUserPhotoPreview] = useState(null);
+  const TRY_ON_PRICE = 50;
 
-  const categories = [
-    { id: 'all', nameKey: 'fitting.categories.all', icon: '🎯' },
-    { id: 'tops', nameKey: 'fitting.categories.tops', icon: '👕' },
-    { id: 'bottoms', nameKey: 'fitting.categories.bottoms', icon: '👖' },
-    { id: 'dresses', nameKey: 'fitting.categories.dresses', icon: '👗' },
-    { id: 'outerwear', nameKey: 'fitting.categories.outerwear', icon: '🧥' },
-    { id: 'shoes', nameKey: 'fitting.categories.shoes', icon: '👟' }
-  ];
+  const [loading, setLoading] = useState(true);
+  const { subtractBalance } = useUser();
 
-  const clothingItems = [
-    { id: 1, name: 'Футболка белая', category: 'tops', price: 10, image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200' },
-    { id: 2, name: 'Джинсы синие', category: 'bottoms', price: 10, image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=200' },
-    { id: 3, name: 'Платье чёрное', category: 'dresses', price: 15, image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=200' },
-    { id: 4, name: 'Куртка кожаная', category: 'outerwear', price: 20, image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=200' },
-    { id: 5, name: 'Кроссовки белые', category: 'shoes', price: 15, image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=200' },
-    { id: 6, name: 'Худи серое', category: 'tops', price: 12, image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=200' },
-    { id: 7, name: 'Брюки классика', category: 'bottoms', price: 12, image: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=200' },
-    { id: 8, name: 'Платье летнее', category: 'dresses', price: 15, image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=200' }
-  ];
+  // 🔥 загрузка категорий + всех продуктов
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const cats = await fetchCategories();
+        const prods = await fetchProducts();
 
-  const filteredItems = selectedCategory === 'all' 
-    ? clothingItems 
-    : clothingItems.filter(item => item.category === selectedCategory);
+        setCategories(cats);
+        setProducts(prods);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => setUserPhoto(e.target.result);
-      reader.readAsDataURL(file);
+    load();
+  }, []);
+
+  const handleDownload = async (imageUrl) => {
+    try {
+      const response = await fetch(imageUrl, { mode: 'cors' });
+      const blob = await response.blob();
+  
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+  
+      a.href = url;
+      a.download = 'try-on-result.png'; // имя файла
+      document.body.appendChild(a);
+      a.click();
+  
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error(e);
+      alert('Не удалось скачать изображение');
     }
   };
+  
 
-  const handleTryOn = () => {
-    if (!userPhoto || !selectedItem) return;
+  // 🔥 продукты по категории
+  const filteredProducts =
+    selectedCategory === 'all'
+      ? products
+      : products.filter(p => p.category_id === selectedCategory);
+
+      const canTryOn =
+      userPhotoFile &&
+      filteredProducts.length > 0 &&
+      !isProcessing;
     
-    if (!subtractBalance(selectedItem.price)) {
-      alert(t('common.insufficientFunds'));
-      return;
-    }
 
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      setResult({
-        image: userPhoto,
-        item: selectedItem
-      });
-    }, 2000);
-  };
+      const handlePhotoUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+      
+        setUserPhotoFile(file);
+      
+        const reader = new FileReader();
+        reader.onload = e => setUserPhotoPreview(e.target.result);
+        reader.readAsDataURL(file);
+      };
+      
+
+      const handleTryOn = async () => {
+        if (!userPhotoFile || filteredProducts.length === 0) return;
+      
+  // 🔥 списываем ФИКСИРОВАННУЮ цену
+  const success = await subtractBalance(TRY_ON_PRICE);
+
+  if (!success) {
+    alert(t('common.insufficientFunds'));
+    return;
+  }
+
+        const randomProduct =
+          filteredProducts[Math.floor(Math.random() * filteredProducts.length)];
+      
+        const formData = new FormData();
+        formData.append('product_id', randomProduct.id);
+        formData.append('user_photo', userPhotoFile);
+      
+        setIsProcessing(true);
+      
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_API_URL}/try-on`,
+            {
+              method: 'POST',
+              body: formData,
+            }
+          );
+      
+          if (!res.ok) {
+            throw new Error('Try-on failed');
+          }
+      
+          const data = await res.json();
+      
+          setResult({
+            image: `${import.meta.env.VITE_API_URL}${data.url}`,
+            item: randomProduct,
+          });
+        } catch (e) {
+          console.error(e);
+          alert('Ошибка примерки');
+        } finally {
+          setIsProcessing(false);
+        }
+      };
+      
+  
+
+  if (loading) {
+    return <div className="fitting">Загрузка...</div>;
+  }
 
   return (
     <div className={`fitting ${isDark ? 'dark' : 'light'}`}>
@@ -72,84 +149,106 @@ const Fitting = () => {
         <p>{t('fitting.subtitle')}</p>
       </div>
 
+      {/* 📸 Фото */}
       <div className="photo-upload-section">
-        <div className="photo-area" onClick={() => document.getElementById('photo-input').click()}>
-          {userPhoto ? (
-            <img src={userPhoto} alt="Ваше фото" />
-          ) : (
+        <div
+          className="photo-area"
+          onClick={() => document.getElementById('photo-input').click()}
+        >
+{userPhotoPreview ? (
+  <img src={userPhotoPreview} alt="Ваше фото" />
+)
+ : (
             <div className="upload-placeholder">
               <span className="upload-icon">📷</span>
               <span>{t('fitting.uploadPhoto')}</span>
             </div>
           )}
         </div>
+
         <input
           type="file"
           id="photo-input"
           accept="image/*"
-          onChange={handlePhotoUpload}
           hidden
+          onChange={handlePhotoUpload}
         />
       </div>
 
+      {/* 🧩 Категории */}
       <div className="categories-scroll">
+        <button
+          className={`category-btn ${selectedCategory === 'all' ? 'active' : ''}`}
+          onClick={() => setSelectedCategory('all')}
+        >
+          <span>🎯</span>
+          <span>{t('fitting.categories.all')}</span>
+        </button>
+
         {categories.map(cat => (
           <button
             key={cat.id}
             className={`category-btn ${selectedCategory === cat.id ? 'active' : ''}`}
             onClick={() => setSelectedCategory(cat.id)}
           >
-            <span>{cat.icon}</span>
-            <span>{t(cat.nameKey)}</span>
+            <span>👕</span>
+            <span>{cat.name}</span>
           </button>
         ))}
       </div>
 
+      {/* 👕 Товары */}
       <div className="clothing-grid">
-        {filteredItems.map(item => (
-          <div 
-            key={item.id}
-            className={`clothing-item ${selectedItem?.id === item.id ? 'selected' : ''}`}
-            onClick={() => setSelectedItem(item)}
-          >
-            <img src={item.image} alt={item.name} />
-            <div className="item-info">
-              <span className="item-name">{item.name}</span>
-              <span className="item-price">{item.price} 💎</span>
-            </div>
-          </div>
-        ))}
+  {filteredProducts.map(item => (
+    <div key={item.id} className="clothing-item preview">
+      <img
+        src={`${import.meta.env.VITE_API_URL}/media/${item.photo}`}
+        alt={item.name}
+      />
+      <div className="item-info">
+        <span className="item-name">{item.name}</span>
       </div>
+    </div>
+  ))}
+</div>
 
-      <button 
-        className="try-on-btn"
-        disabled={!userPhoto || !selectedItem || isProcessing}
-        onClick={handleTryOn}
-      >
-        {isProcessing ? (
-          <span className="processing">⏳ {t('fitting.processing')}</span>
-        ) : (
-          <>
-            <span>{t('fitting.tryOn')}</span>
-            {selectedItem && <span className="btn-price">{selectedItem.price} 💎</span>}
-          </>
-        )}
+
+      {/* ▶️ Кнопка */}
+      <button
+  className="try-on-btn"
+  disabled={!canTryOn}
+  onClick={handleTryOn}
+>
+
+{isProcessing
+  ? '⏳ Обработка...'
+  : `Примерить (${TRY_ON_PRICE} 💎)`
+}
       </button>
 
+      {/* ✨ Результат */}
       {result && (
-        <div className="result-modal" onClick={() => setResult(null)}>
-          <div className="result-content" onClick={e => e.stopPropagation()}>
-            <h3>✨ {t('fitting.result')}</h3>
-            <div className="result-image">
-              <img src={result.image} alt="Результат" />
-              <div className="result-overlay">
-                <span>{result.item.name}</span>
-              </div>
-            </div>
-            <button onClick={() => setResult(null)}>{t('fitting.close')}</button>
-          </div>
-        </div>
-      )}
+  <div className="result-modal" onClick={() => setResult(null)}>
+    <div className="result-content" onClick={e => e.stopPropagation()}>
+      <h3>✨ Результат</h3>
+      <img src={result.image} alt="Результат" />
+      <p>{result.item.name}</p>
+      <button onClick={() => setResult(null)}>Закрыть</button>
+      <div className="result-actions">
+  <button
+    className="download-btn"
+    onClick={() => handleDownload(result.image)}
+  >
+    ⬇️ Скачать
+  </button>
+
+
+</div>
+
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

@@ -29,36 +29,12 @@ const Profile = () => {
     <div className={`profile ${isDark ? 'dark' : 'light'}`}>
       <div className="profile-header">
         <div className="avatar-section">
-          <img src={user.avatar} alt="Аватар" className="avatar" />
-          <button className="change-avatar">📷</button>
+          <img src={user.photo_url} alt="Аватар" className="avatar" />
+          <span className="payment-section">{user.first_name}</span>
         </div>
         
-        {isEditing ? (
-          <div className="edit-form">
-            <input
-              type="text"
-              value={editData.name}
-              onChange={(e) => setEditData({...editData, name: e.target.value})}
-              placeholder="Имя"
-            />
-            <input
-              type="email"
-              value={editData.email}
-              onChange={(e) => setEditData({...editData, email: e.target.value})}
-              placeholder="Email"
-            />
-            <div className="edit-actions">
-              <button className="save-btn" onClick={handleSave}>{t('profile.save')}</button>
-              <button className="cancel-btn" onClick={() => setIsEditing(false)}>{t('profile.cancel')}</button>
-            </div>
-          </div>
-        ) : (
-          <div className="user-info">
-            <h1>{user.name}</h1>
-            <p>{user.email}</p>
-            <button className="edit-btn" onClick={() => setIsEditing(true)}>✏️ {t('profile.editProfile')}</button>
-          </div>
-        )}
+
+
       </div>
 
       <div className="balance-card">

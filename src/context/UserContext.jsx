@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { userExists, createUser, getUser } from '../api/userApi';
+import { userExists, createUser, getUser, updateUser } from '../api/userApi';
 
 const UserContext = createContext(null);
 
@@ -14,6 +14,44 @@ const isLocalDev = import.meta.env.DEV;
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const subtractBalance = async (amount) => {
+    if (!user) return false;
+  
+    if (user.balance < amount) {
+      return false;
+    }
+  
+    const newBalance = user.balance - amount;
+  
+    // 1️⃣ оптимистично обновляем UI
+    setUser(prev => ({
+      ...prev,
+      balance: newBalance,
+    }));
+  
+    try {
+      // 2️⃣ отправляем в backend
+      const updatedUser = await updateUser(user.tg_id, {
+        balance: newBalance,
+      });
+  
+      // 3️⃣ синхронизируем state с backend-версией
+      setUser(updatedUser);
+      return true;
+    } catch (e) {
+      console.error('Balance update failed', e);
+  
+      // 🔄 rollback
+      setUser(prev => ({
+        ...prev,
+        balance: prev.balance + amount,
+      }));
+  
+      return false;
+    }
+  };
+  
+
 
   useEffect(() => {
     const init = async () => {
@@ -69,8 +107,9 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, loading }}>
+    <UserContext.Provider value={{ user, loading, subtractBalance }}>
       {children}
     </UserContext.Provider>
   );
+  
 };

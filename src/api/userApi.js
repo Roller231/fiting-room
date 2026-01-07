@@ -26,3 +26,21 @@ export async function getUser(tgId) {
   if (!res.ok) throw new Error('get user failed');
   return res.json();
 }
+
+export async function updateUser(tgId, data) {
+    const res = await fetch(`${API_URL}/users/${tgId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+  
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(t || 'update user failed');
+    }
+  
+    return res.json(); // обновлённый user
+  }
+  
