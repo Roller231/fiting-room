@@ -1,65 +1,75 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { userExists, createUser, getUser } from '../api/userApi';
 
-const UserContext = createContext();
+const UserContext = createContext(null);
 
 export const useUser = () => {
-  const context = useContext(UserContext);
-  if (!context) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
-  return context;
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error('useUser must be used within UserProvider');
+  return ctx;
 };
 
+const isLocalDev = import.meta.env.DEV;
+
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState({
-    balance: 1500,
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user123',
-    name: 'Пользователь',
-    email: 'user@example.com',
-    referralCode: 'FIT2024USER',
-    referrals: 3,
-    totalEarned: 450
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const addBalance = (amount) => {
-    setUser(prev => ({ ...prev, balance: prev.balance + amount }));
-  };
+  useEffect(() => {
+    const init = async () => {
+      try {
+        let tgUser;
 
-  const subtractBalance = (amount) => {
-    if (user.balance >= amount) {
-      setUser(prev => ({ ...prev, balance: prev.balance - amount }));
-      return true;
-    }
-    return false;
-  };
+        const tg = window.Telegram?.WebApp;
 
-  const applyPromoCode = (code) => {
-    const promoCodes = {
-      'WELCOME100': 100,
-      'VIP500': 500,
-      'BONUS250': 250,
-      'FIRST50': 50
+        if (tg?.initDataUnsafe?.user) {
+          tg.ready();
+          tgUser = tg.initDataUnsafe.user;
+        } else if (isLocalDev) {
+          tgUser = {
+            id: 120,
+            username: 'local_user',
+            first_name: 'Local',
+            last_name: 'Dev',
+            language_code: 'ru',
+            photo_url: null,
+          };
+        } else {
+          throw new Error('No telegram user');
+        }
+
+        const { exists } = await userExists(tgUser.id);
+
+        if (!exists) {
+          await createUser({
+            tg_id: tgUser.id,
+            username: tgUser.username,
+            first_name: tgUser.first_name,
+            last_name: tgUser.last_name,
+            photo_url: tgUser.photo_url,
+            language_code: tgUser.language_code,
+            can_send_count: 0,
+            isPremium: false,
+            isBlocked: false,
+            balance: 0,
+            deposits_total: 0,
+          });
+        }
+
+        const fullUser = await getUser(tgUser.id);
+        setUser(fullUser);
+      } catch (e) {
+        console.error('User init failed', e);
+      } finally {
+        setLoading(false);
+      }
     };
-    
-    if (promoCodes[code.toUpperCase()]) {
-      addBalance(promoCodes[code.toUpperCase()]);
-      return { success: true, amount: promoCodes[code.toUpperCase()] };
-    }
-    return { success: false };
-  };
 
-  const updateProfile = (data) => {
-    setUser(prev => ({ ...prev, ...data }));
-  };
+    init();
+  }, []);
 
   return (
-    <UserContext.Provider value={{ 
-      user, 
-      addBalance, 
-      subtractBalance, 
-      applyPromoCode,
-      updateProfile 
-    }}>
+    <UserContext.Provider value={{ user, loading }}>
       {children}
     </UserContext.Provider>
   );

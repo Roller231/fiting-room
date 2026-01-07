@@ -6,8 +6,22 @@ import './Header.css';
 
 const Header = () => {
   const { isDark } = useTheme();
-  const { user } = useUser();
+  const { user, loading } = useUser();
   const [showTopUp, setShowTopUp] = useState(false);
+
+  if (loading || !user) {
+    return (
+      <header className={`header ${isDark ? 'dark' : 'light'}`}>
+        <div className="header-content">
+          <div className="logo">
+            <span className="logo-icon">✨</span>
+            <span className="logo-text">FitRoom</span>
+          </div>
+          <div className="balance-skeleton">...</div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <>
@@ -17,7 +31,7 @@ const Header = () => {
             <span className="logo-icon">✨</span>
             <span className="logo-text">FitRoom</span>
           </div>
-          
+
           <button className="balance-btn" onClick={() => setShowTopUp(true)}>
             <span className="balance-icon">💎</span>
             <span className="balance-amount">{user.balance}</span>
@@ -25,10 +39,11 @@ const Header = () => {
           </button>
         </div>
       </header>
-      
+
       {showTopUp && <TopUpModal onClose={() => setShowTopUp(false)} />}
     </>
   );
 };
+
 
 export default Header;
