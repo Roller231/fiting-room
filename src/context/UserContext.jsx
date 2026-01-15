@@ -12,6 +12,13 @@ export const useUser = () => {
 const isLocalDev = import.meta.env.DEV;
 
 export const UserProvider = ({ children }) => {
+
+  console.log('Telegram object:', window.Telegram);
+  console.log('WebApp:', window.Telegram?.WebApp);
+  console.log('initData:', window.Telegram?.WebApp?.initData);
+  console.log('initDataUnsafe:', window.Telegram?.WebApp?.initDataUnsafe);
+  
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const subtractBalance = async (amount) => {
