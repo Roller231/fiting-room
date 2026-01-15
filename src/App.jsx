@@ -1,66 +1,77 @@
-import { useEffect, useState } from 'react';
-import { ThemeProvider, useTheme } from './context/ThemeContext';
-import { UserProvider } from './context/UserContext';
-import { LanguageProvider } from './context/LanguageContext';
-import { initTelegram } from './telegram/initTelegram';
+import { useEffect, useState } from 'react'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
+import { UserProvider, useUser } from './context/UserContext'
+import { LanguageProvider } from './context/LanguageContext'
+import { initTelegram } from './telegram/initTelegram'
 
-import ThemeSelector from './components/ThemeSelector/ThemeSelector';
-import Header from './components/Header/Header';
-import Navigation from './components/Navigation/Navigation';
+import ThemeSelector from './components/ThemeSelector/ThemeSelector'
+import Header from './components/Header/Header'
+import Navigation from './components/Navigation/Navigation'
 
-import Home from './pages/Home/Home';
-import Fitting from './pages/Fitting/Fitting';
-import VipFitting from './pages/VipFitting/VipFitting';
-import Marketplace from './pages/Marketplace/Marketplace';
-import Exclusive from './pages/Exclusive/Exclusive';
-import Profile from './pages/Profile/Profile';
-import Settings from './pages/Settings/Settings';
-import Community from './pages/Community/Community';
-import { useUser } from './context/UserContext'
-import './App.css';
+import Home from './pages/Home/Home'
+import Fitting from './pages/Fitting/Fitting'
+import VipFitting from './pages/VipFitting/VipFitting'
+import Marketplace from './pages/Marketplace/Marketplace'
+import Exclusive from './pages/Exclusive/Exclusive'
+import Profile from './pages/Profile/Profile'
+import Settings from './pages/Settings/Settings'
+import Community from './pages/Community/Community'
+
+import './App.css'
+
+/* ================= APP CONTENT ================= */
 
 const AppContent = () => {
-  const { isFirstVisit, isDark } = useTheme();
-  const [activeTab, setActiveTab] = useState('home');
-  const { initUser } = useUser()   // ✅ ВОТ ЭТОГО НЕ БЫЛО
-  useEffect(() => {
-    initTelegram();
-  }, []);
+  const { isFirstVisit, isDark } = useTheme()
+  const { initUser, user, loading } = useUser()
+  const [activeTab, setActiveTab] = useState('home')
 
+  /* ---------- TELEGRAM INIT (layout only) ---------- */
   useEffect(() => {
+    initTelegram()
+
     const tg = window.Telegram?.WebApp
     if (!tg) return
-  
+
     tg.ready()
-  
-    // 🔥 ВСЕГДА пытаемся раскрыть
     tg.expand()
-  
-    // 🔁 повтор при изменении viewport
-    tg.onEvent('viewportChanged', () => {
-      tg.expand()
-    })
-  
-    // 🔁 повтор при возврате в фокус
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        tg.expand()
-      }
-    })
-  
-    if (tg.initDataUnsafe?.user) {
-      const u = tg.initDataUnsafe.user
-        
+
+    tg.onEvent('viewportChanged', () => tg.expand())
+
+    const onFocus = () => {
+      if (!document.hidden) tg.expand()
+    }
+
+    document.addEventListener('visibilitychange', onFocus)
+
+    return () => {
+      document.removeEventListener('visibilitychange', onFocus)
+    }
+  }, [])
+
+  /* ---------- USER INIT (TG / LOCAL) ---------- */
+  useEffect(() => {
+    if (!initUser) return
+
+    console.log('[APP] init user effect')
+
+    const tg = window.Telegram?.WebApp
+    const tgUser = tg?.initDataUnsafe?.user
+
+    if (tgUser) {
+      console.log('[APP] telegram user', tgUser)
+
       initUser({
-        id: u.id,
-        username: u.username || `tg_${u.id}`,
-        first_name: u.first_name || 'Guest',
-        last_name: u.last_name || '',
-        photo_url: u.photo_url || null,
-        language_code: u.language_code || 'en',
+        id: tgUser.id,
+        username: tgUser.username || `tg_${tgUser.id}`,
+        first_name: tgUser.first_name || 'Guest',
+        last_name: tgUser.last_name || '',
+        photo_url: tgUser.photo_url || null,
+        language_code: tgUser.language_code || 'en',
       })
     } else {
-      // fallback (browser / dev)
+      console.log('[APP] local user')
+
       initUser({
         id: 120,
         username: 'local_user',
@@ -70,68 +81,51 @@ const AppContent = () => {
         language_code: 'ru',
       })
     }
-  }, [])
+  }, [initUser])
 
   if (isFirstVisit) {
-    return <ThemeSelector />;
+    return <ThemeSelector />
+  }
+
+  if (loading || !user) {
+    return <div className="loader">Loading user...</div>
   }
 
   const renderPage = () => {
     switch (activeTab) {
       case 'home':
-        return <Home setActiveTab={setActiveTab} />;
+        return <Home setActiveTab={setActiveTab} />
       case 'fitting':
-        return <Fitting />;
+        return <Fitting />
       case 'vip':
-        return <VipFitting />;
+        return <VipFitting />
       case 'marketplace':
-        return <Marketplace />;
+        return <Marketplace />
       case 'exclusive':
-        return <Exclusive />;
+        return <Exclusive />
       case 'profile':
-        return <Profile />;
+        return <Profile />
       case 'settings':
-        return <Settings />;
+        return <Settings />
       case 'community':
-        return <Community />;
+        return <Community />
       default:
-        return <Home setActiveTab={setActiveTab} />;
+        return <Home setActiveTab={setActiveTab} />
     }
-  };
+  }
 
   return (
     <div className={`app ${isDark ? 'dark' : 'light'}`}>
-      <div className="background-effects">
-        {isDark ? (
-          <>
-            <div className="stars-bg"></div>
-            <div className="galaxy-bg"></div>
-          </>
-        ) : (
-          <>
-            <div className="sky-bg"></div>
-            <div className="clouds-bg"></div>
-          </>
-        )}
-      </div>
-
-      <div className="center-bg">
-  {isDark ? (
-    <img src="/icons/bg-dark.png" alt="" />
-  ) : (
-    <img src="/icons/bg-light.png" alt="" />
-  )}
-</div>
-
-
       <Header />
       <main className="main-content">{renderPage()}</main>
       <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
-  );
-};
+  )
+}
 
-function App() {
+/* ================= ROOT ================= */
+
+export default function App() {
   return (
     <ThemeProvider>
       <UserProvider>
@@ -140,7 +134,5 @@ function App() {
         </LanguageProvider>
       </UserProvider>
     </ThemeProvider>
-  );
+  )
 }
-
-export default App;

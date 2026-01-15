@@ -1,5 +1,5 @@
-import { createContext, useContext, useState } from 'react'
-import { userExists, createUser, getUser, updateUser } from '../api/userApi'
+import { createContext, useContext, useState, useRef } from 'react'
+import { userExists, createUser, getUser } from '../api/userApi'
 
 const UserContext = createContext(null)
 
@@ -9,12 +9,25 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(false)
 
+  const initializedRef = useRef(false)
+
   const initUser = async (tgUser) => {
+    if (initializedRef.current) {
+      console.log('[USER] already initialized')
+      return
+    }
+
+    initializedRef.current = true
     setLoading(true)
+
+    console.log('[USER] init start', tgUser)
+
     try {
       const { exists } = await userExists(tgUser.id)
 
       if (!exists) {
+        console.log('[USER] creating user')
+
         await createUser({
           tg_id: tgUser.id,
           username: tgUser.username,
@@ -27,9 +40,12 @@ export function UserProvider({ children }) {
       }
 
       const fullUser = await getUser(tgUser.id)
+      console.log('[USER] loaded', fullUser)
+
       setUser(fullUser)
     } catch (e) {
-      console.error('User init failed', e)
+      console.error('[USER] init failed', e)
+      initializedRef.current = false
     } finally {
       setLoading(false)
     }
