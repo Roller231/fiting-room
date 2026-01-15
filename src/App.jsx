@@ -16,13 +16,13 @@ import Exclusive from './pages/Exclusive/Exclusive';
 import Profile from './pages/Profile/Profile';
 import Settings from './pages/Settings/Settings';
 import Community from './pages/Community/Community';
-
+import { useUser } from './context/UserContext'
 import './App.css';
 
 const AppContent = () => {
   const { isFirstVisit, isDark } = useTheme();
   const [activeTab, setActiveTab] = useState('home');
-
+  const { initUser } = useUser()   // ✅ ВОТ ЭТОГО НЕ БЫЛО
   useEffect(() => {
     initTelegram();
   }, []);
