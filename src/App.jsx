@@ -49,20 +49,25 @@ const AppContent = () => {
     })
   
     if (tg.initDataUnsafe?.user) {
-      const tgUser = tg.initDataUnsafe.user
-  
+      const u = tg.initDataUnsafe.user
+        
       initUser({
-        tg_id: String(tgUser.id),
-        username: tgUser.username || `tg_${tgUser.id}`,
-        firstname: tgUser.first_name || 'Guest',
-        photo_url: tgUser.photo_url || null,
+        id: u.id,
+        username: u.username || `tg_${u.id}`,
+        first_name: u.first_name || 'Guest',
+        last_name: u.last_name || '',
+        photo_url: u.photo_url || null,
+        language_code: u.language_code || 'en',
       })
     } else {
+      // fallback (browser / dev)
       initUser({
-        tg_id: 'local',
-        username: 'localuser',
-        firstname: 'Guest',
+        id: 120,
+        username: 'local_user',
+        first_name: 'Local',
+        last_name: 'Dev',
         photo_url: null,
+        language_code: 'ru',
       })
     }
   }, [])
