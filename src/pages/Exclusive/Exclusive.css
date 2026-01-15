@@ -324,9 +324,11 @@
 .result-before img, .result-after img {
   width: 120px;
   height: 150px;
-  object-fit: cover;
+  object-fit: contain;   /* 🔥 ключевое */
   border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2); /* чтобы не было "пустоты" */
 }
+
 
 .result-before span, .result-after span {
   display: block;

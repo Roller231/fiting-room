@@ -105,7 +105,7 @@ const Settings = () => {
           <div className="app-info">
             <span className="app-logo">✨</span>
             <div>
-              <span className="app-name">FitRoom</span>
+              <span className="app-name">TryOnNow</span>
               <span className="app-version">{t('settings.version')} 1.0.0</span>
             </div>
           </div>

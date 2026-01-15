@@ -7,11 +7,11 @@ const Navigation = ({ activeTab, setActiveTab }) => {
   const { t } = useLanguage();
 
   const tabs = [
-    { id: 'settings', icon: '⚙️', labelKey: 'settings.title' },
-    { id: 'community', icon: '👥', labelKey: 'community.title' },
-    { id: 'home', icon: '🏠', labelKey: 'nav.home' },
-    { id: 'fitting', icon: '👗', labelKey: 'nav.fitting' },
-    { id: 'profile', icon: '👤', labelKey: 'nav.profile' }
+    { id: 'settings', icon: '/icons/nav/settings.png', labelKey: 'settings.title' },
+    { id: 'community', icon: '/icons/nav/comunity.png', labelKey: 'community.title' },
+    { id: 'home', icon: '/icons/nav/home.png', labelKey: 'nav.home' },
+    { id: 'fitting', icon: '/icons/nav/fit.png', labelKey: 'nav.fitting' },
+    { id: 'profile', icon: '/icons/nav/profile.png', labelKey: 'nav.profile' }
   ];
 
   return (
@@ -23,7 +23,9 @@ const Navigation = ({ activeTab, setActiveTab }) => {
             className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
             onClick={() => setActiveTab(tab.id)}
           >
-            <span className="nav-icon">{tab.icon}</span>
+            <span className="nav-icon">
+              <img src={tab.icon} alt="" />
+            </span>
             <span className="nav-label">{t(tab.labelKey)}</span>
           </button>
         ))}

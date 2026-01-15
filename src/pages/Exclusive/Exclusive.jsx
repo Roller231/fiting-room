@@ -11,7 +11,9 @@ const Exclusive = () => {
   const [prompt, setPrompt] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState(null);
-
+  const [userPhotoFile, setUserPhotoFile] = useState(null);
+  const [clothingPhotoFile, setClothingPhotoFile] = useState(null);
+  
   const promptSuggestions = [
     'Сделай образ более элегантным',
     'Добавь аксессуары',
@@ -19,40 +21,93 @@ const Exclusive = () => {
     'Сделай casual стиль',
     'Добавь деловой стиль'
   ];
-
-  const handlePhotoUpload = (e, type) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        if (type === 'user') setUserPhoto(ev.target.result);
-        else setClothingPhoto(ev.target.result);
-      };
-      reader.readAsDataURL(file);
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(result.image, { mode: 'cors' });
+      const blob = await response.blob();
+  
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+  
+      a.href = url;
+      a.download = 'exclusive-try-on.png';
+      document.body.appendChild(a);
+      a.click();
+  
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error(e);
+      alert('Не удалось сохранить изображение');
     }
   };
+  
+  const handlePhotoUpload = (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+  
+    const reader = new FileReader();
+    reader.onload = ev => {
+      if (type === 'user') {
+        setUserPhoto(ev.target.result);
+        setUserPhotoFile(file);
+      } else {
+        setClothingPhoto(ev.target.result);
+        setClothingPhotoFile(file);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  
 
-  const handleGenerate = () => {
-    if (!userPhoto || !clothingPhoto) {
+  const handleGenerate = async () => {
+    if (!userPhotoFile || !clothingPhotoFile) {
       alert('Загрузите оба фото!');
       return;
     }
-    
-    if (!subtractBalance(50)) {
-      alert('Недостаточно средств! Пополните баланс.');
+  
+    const success = await subtractBalance(50);
+    if (!success) {
+      alert('Недостаточно средств!');
       return;
     }
-
+  
+    const formData = new FormData();
+    formData.append('person_photo', userPhotoFile);
+    formData.append('clothes_photo', clothingPhotoFile);
+    if (prompt) {
+      formData.append('prompt', prompt);
+    }
+  
     setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
+  
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/try-on/raw`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+  
+      if (!res.ok) {
+        throw new Error('Try-on failed');
+      }
+  
+      const data = await res.json();
+  
       setResult({
-        image: userPhoto,
-        clothing: clothingPhoto,
-        prompt: prompt
+        image: `${import.meta.env.VITE_API_URL}${data.url}`,
+        prompt,
       });
-    }, 3000);
+    } catch (e) {
+      console.error(e);
+      alert('Ошибка при генерации образа');
+    } finally {
+      setIsProcessing(false);
+    }
   };
+  
 
   return (
     <div className={`exclusive ${isDark ? 'dark' : 'light'}`}>
@@ -157,21 +212,26 @@ const Exclusive = () => {
           <div className="result-content" onClick={e => e.stopPropagation()}>
             <h3>✨ Ваш эксклюзивный образ</h3>
             <div className="result-images">
-              <div className="result-before">
-                <img src={result.image} alt="До" />
-                <span>Оригинал</span>
-              </div>
-              <div className="result-arrow">→</div>
-              <div className="result-after">
-                <img src={result.image} alt="После" />
-                <span>Результат</span>
-              </div>
-            </div>
+  <div className="result-before">
+    <img src={userPhoto} alt="Оригинал" />
+    <span>Оригинал</span>
+  </div>
+
+  <div className="result-arrow">→</div>
+
+  <div className="result-after">
+    <img src={result.image} alt="Результат" />
+    <span>Результат</span>
+  </div>
+</div>
+
             {result.prompt && (
               <p className="result-prompt">Промт: "{result.prompt}"</p>
             )}
             <div className="result-actions">
-              <button className="save-btn">💾 Сохранить</button>
+            <button className="save-btn" onClick={handleDownload}>
+  💾 Сохранить
+</button>
               <button className="close-btn" onClick={() => setResult(null)}>Закрыть</button>
             </div>
           </div>

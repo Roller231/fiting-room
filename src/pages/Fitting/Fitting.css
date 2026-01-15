@@ -255,6 +255,7 @@
   width: 100%;
   padding: 16px;
   border: none;
+  margin-bottom: 10px;
   border-radius: 16px;
   font-size: 18px;
   font-weight: 600;
@@ -375,6 +376,8 @@
   margin-bottom: 24px;
   font-weight: 600; /* semi-bold */
   font-size: 16px;
+  color: #fff;
+
 }
 .result-actions {
   display: flex;

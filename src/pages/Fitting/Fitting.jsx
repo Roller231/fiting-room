@@ -174,7 +174,18 @@ const Fitting = () => {
           onChange={handlePhotoUpload}
         />
       </div>
+      {/* ▶️ Кнопка */}
+      <button
+  className="try-on-btn"
+  disabled={!canTryOn}
+  onClick={handleTryOn}
+>
 
+{isProcessing
+  ? '⏳ Обработка...'
+  : `Примерить (${TRY_ON_PRICE} 💎)`
+}
+      </button>
       {/* 🧩 Категории */}
       <div className="categories-scroll">
         <button
@@ -201,10 +212,11 @@ const Fitting = () => {
       <div className="clothing-grid">
   {filteredProducts.map(item => (
     <div key={item.id} className="clothing-item preview">
-      <img
-        src={`${import.meta.env.VITE_API_URL}/media/${item.photo}`}
-        alt={item.name}
-      />
+<img
+  src={`${import.meta.env.VITE_API_URL}/media/${item.gif || item.photo}`}
+  alt={item.name}
+/>
+
       <div className="item-info">
         <span className="item-name">{item.name}</span>
       </div>
@@ -213,18 +225,7 @@ const Fitting = () => {
 </div>
 
 
-      {/* ▶️ Кнопка */}
-      <button
-  className="try-on-btn"
-  disabled={!canTryOn}
-  onClick={handleTryOn}
->
 
-{isProcessing
-  ? '⏳ Обработка...'
-  : `Примерить (${TRY_ON_PRICE} 💎)`
-}
-      </button>
 
       {/* ✨ Результат */}
       {result && (

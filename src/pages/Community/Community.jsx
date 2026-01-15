@@ -45,7 +45,7 @@ const Community = () => {
       titleKey: 'community.youtube',
       descKey: 'community.youtubeDesc',
       color: '#ff0000',
-      url: 'https://youtube.com/fitroom'
+      url: 'https://youtube.com/@ton-d8k?si=SCHdVDKP_Rzj3qPM'
     },
     {
       id: 'tiktok',
@@ -139,7 +139,7 @@ const Community = () => {
           ))}
         </div>
       </div>
-
+{/* 
       <div className="invite-section">
         <div className="invite-card">
           <span className="invite-icon">🎁</span>
@@ -149,7 +149,7 @@ const Community = () => {
           </div>
           <button className="invite-btn">{t('community.invite')}</button>
         </div>
-      </div>
+      </div> */}
 
       <div className="feedback-section">
         <h2>📝 {t('community.feedback')}</h2>

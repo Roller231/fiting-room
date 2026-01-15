@@ -45,7 +45,7 @@ const Profile = () => {
         <div className="balance-icon">💰</div>
       </div>
 
-      <div className="referral-section">
+      {/* <div className="referral-section">
         <h2>🎁 {t('profile.referral')}</h2>
         <div className="referral-card">
           <div className="referral-code-block">
@@ -73,7 +73,7 @@ const Profile = () => {
             {t('profile.inviteHint')}
           </p>
         </div>
-      </div>
+      </div> */}
 
       <div className="payment-section">
         <h2>💎 {t('profile.balance')}</h2>
@@ -86,7 +86,7 @@ const Profile = () => {
 
       <div className="history-section">
         <h2>📊 {t('profile.history')}</h2>
-        <div className="history-list">
+        {/* <div className="history-list">
           <div className="history-item">
             <div className="history-icon income">+</div>
             <div className="history-info">
@@ -111,7 +111,7 @@ const Profile = () => {
             </div>
             <span className="history-amount income">+50 💎</span>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {showTopUp && <TopUpModal onClose={() => setShowTopUp(false)} />}

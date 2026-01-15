@@ -208,7 +208,14 @@ const filteredProducts = selectedStore
 </div>
 
       </div>
-
+      <button 
+        className="vip-try-btn"
+        disabled={!userPhotoFile || !selectedItem || isProcessing}
+        onClick={handleTryOn}
+        
+      >
+        {isProcessing ? `⏳ ${t('vip.processing')}` : `${t('vip.tryOn')} ${selectedItem ? `(${selectedItem.price} 💎)` : ''}`}
+      </button>
       {selectedStore && (
   <div className="items-section">
     <h2>{t('vip.collection')}</h2>
@@ -220,10 +227,11 @@ const filteredProducts = selectedStore
           className={`item-card ${selectedItem?.id === item.id ? 'selected' : ''}`}
           onClick={() => setSelectedItem(item)}
         >
-          <img
-            src={`${import.meta.env.VITE_API_URL}/media/${item.photo}`}
-            alt={item.name}
-          />
+<img
+  src={`${import.meta.env.VITE_API_URL}/media/${item.gif || item.photo}`}
+  alt={item.name}
+/>
+
 
           <div className="item-details">
             <span className="name">{item.name}</span>
@@ -260,13 +268,7 @@ const filteredProducts = selectedStore
 )}
 
 
-      <button 
-        className="vip-try-btn"
-        disabled={!userPhotoFile || !selectedItem || isProcessing}
-        onClick={handleTryOn}
-      >
-        {isProcessing ? `⏳ ${t('vip.processing')}` : `${t('vip.tryOn')} ${selectedItem ? `(${selectedItem.price} 💎)` : ''}`}
-      </button>
+
     </div>
 
 

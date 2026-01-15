@@ -295,6 +295,7 @@
 .vip-try-btn {
   width: 100%;
   padding: 16px;
+  margin-bottom: 10px;
   border: none;
   border-radius: 16px;
   font-size: 17px;

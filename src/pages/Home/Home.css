@@ -49,10 +49,25 @@
 }
 
 .feature-icon {
-  margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 18px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+
+.home.dark .feature-icon {
+  width: 180%;
+  height: 190px;      /* ⬆️ чуть больше */
+  margin-bottom: -30px; /* ⬇️ меньше отступ */
+}
+
+.home.dark .feature-icon img {
+  width: 110%;        /* ⬆️ визуально крупнее */
+  height: 110%;
+  object-fit: contain;
 }
 
 
@@ -179,10 +194,7 @@
   border-color: rgba(59, 130, 246, 0.3);
 }
 
-.feature-icon {
-  font-size: 36px;
-  margin-bottom: 50px;
-}
+
 
 .feature-card h3 {
   font-size: 16px;

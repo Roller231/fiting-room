@@ -29,7 +29,7 @@ const Header = () => {
         <div className="header-content">
           <div className="logo">
             <span className="logo-icon">✨</span>
-            <span className="logo-text">FitRoom</span>
+            <span className="logo-text">TryOnNow</span>
           </div>
 
           <button className="balance-btn" onClick={() => setShowTopUp(true)}>

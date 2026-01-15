@@ -9,7 +9,7 @@ const Home = ({ setActiveTab }) => {
   const features = [
     {
       id: 'basic',
-      iconDark: '👗',
+      iconDark: '/icons/fitingDark.png',
       iconLight: '/icons/fitting.jpg',
       titleKey: 'home.fitting',
       descKey: 'home.fittingDesc',
@@ -18,7 +18,7 @@ const Home = ({ setActiveTab }) => {
     },
     {
       id: 'vip',
-      iconDark: '👑',
+      iconDark: '../../icons/vipDark.png',
       iconLight: '../../icons/vip.jpg',
       titleKey: 'home.vipFitting',
       descKey: 'home.vipDesc',
@@ -27,7 +27,7 @@ const Home = ({ setActiveTab }) => {
     },
     {
       id: 'marketplace',
-      iconDark: '🛒',
+      iconDark: '/icons/marketDark.png',
       iconLight: '/icons/marketplace.jpg',
       titleKey: 'home.wbOzon',
       descKey: 'home.wbOzonDesc',
@@ -36,7 +36,7 @@ const Home = ({ setActiveTab }) => {
     },
     {
       id: 'exclusive',
-      iconDark: '⭐',
+      iconDark: '/icons/exclusiveDark.png',
       iconLight: '/icons/exclusive.jpg',
       titleKey: 'home.exclusive',
       descKey: 'home.exclusiveDesc',
@@ -50,7 +50,7 @@ const Home = ({ setActiveTab }) => {
     <div className={`home ${isDark ? 'dark' : 'light'}`}>
       <div className="home-banner">
         <div className="banner-content">
-          <h1>{t('home.welcome')}<br/><span>FitRoom</span></h1>
+          <h1>{t('home.welcome')}<br/><span>TryOnNow</span></h1>
           <p>{t('home.subtitle')}</p>
         </div>
         <div className="banner-decoration">
@@ -69,7 +69,7 @@ const Home = ({ setActiveTab }) => {
             >
 <span className="feature-icon">
   {isDark ? (
-    feature.iconDark
+    <img src={feature.iconDark} alt="" />
   ) : (
     <img src={feature.iconLight} alt="" />
   )}
@@ -81,7 +81,7 @@ const Home = ({ setActiveTab }) => {
         </div>
       </section>
 
-      <section className="promo-banner">
+      {/* <section className="promo-banner">
         <div className="promo-content">
           <span className="promo-icon">🎁</span>
           <div>
@@ -89,7 +89,7 @@ const Home = ({ setActiveTab }) => {
             <p>{t('home.usePromo')} <strong>WELCOME100</strong></p>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="stats-section">
         <div className="stat-item">
