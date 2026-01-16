@@ -25,8 +25,11 @@ import './App.css'
 
 const AppContent = () => {
   const { isFirstVisit, isDark } = useTheme()
-  const { initUser, user, loading } = useUser()
+  const { user, loading } = useUser()
   const [activeTab, setActiveTab] = useState('home')
+
+  if (isFirstVisit) return <ThemeSelector />
+  if (loading) return <div className="loader">Loading user...</div>
 
   useEffect(() => {
     let cancelled = false
@@ -161,11 +164,9 @@ const AppContent = () => {
 export default function App() {
   return (
     <ThemeProvider>
-      <UserProvider>
         <LanguageProvider>
           <AppContent />
         </LanguageProvider>
-      </UserProvider>
     </ThemeProvider>
   )
 }
