@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { userExists, createUser, getUser, updateUser } from '../api/userApi'
-import { retrieveLaunchParams } from '@telegram-apps/sdk-react'  // Use SDK for safer access
 
 const UserContext = createContext(null)
 
@@ -34,70 +33,29 @@ export const UserProvider = ({ children }) => {
     }
   }
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        setError(null)  // Reset error
-        let tgUser = null
+const initUser = async ({ tg_id, username, firstname, photo_url }) => {
+  try {
+    const { exists } = await userExists(tg_id)
 
-        // IMPROVED: Use SDK first (safer), fallback to window.Telegram
-        const launchParams = retrieveLaunchParams()
-        if (launchParams.user) {
-          // SDK provides structured user
-          tgUser = launchParams.user
-          const tg = window.Telegram?.WebApp
-          if (tg) {
-            tg.ready()
-            tg.expand()
-          }
-        } else {
-          const tg = window.Telegram?.WebApp
-          if (tg?.initDataUnsafe?.user) {
-            tg.ready()
-            tg.expand()
-            tgUser = tg.initDataUnsafe.user
-          } else if (isLocalDev) {
-            tgUser = {
-              id: 120,
-              username: 'local_user',
-              first_name: 'Local',
-              last_name: 'Dev',
-              language_code: 'ru',
-              photo_url: null,
-            }
-          }
-        }
-
-        if (!tgUser) {
-          throw new Error('Telegram Mini App must be opened within Telegram')
-        }
-
-        const { exists } = await userExists(tgUser.id)
-
-        if (!exists) {
-          await createUser({
-            tg_id: tgUser.id,
-            username: tgUser.username || tgUser.username,
-            first_name: tgUser.first_name,
-            last_name: tgUser.last_name || '',
-            photo_url: tgUser.photo_url || null,
-            language_code: tgUser.language_code || 'en',
-            balance: 0,
-          })
-        }
-
-        const fullUser = await getUser(tgUser.id)
-        setUser(fullUser)
-      } catch (e) {
-        // console.error('[USER INIT FAILED]', e)  // OPTIONAL: Comment to suppress console spam
-        setError(e.message)
-      } finally {
-        setLoading(false)
-      }
+    if (!exists) {
+      await createUser({
+        tg_id,
+        username,
+        first_name: firstname,
+        photo_url,
+        balance: 0,
+      })
     }
 
-    init()
-  }, [])
+    const fullUser = await getUser(tg_id)
+    setUser(fullUser)
+  } catch (e) {
+    setError(e.message)
+  } finally {
+    setLoading(false)
+  }
+}
+
 
   return (
     <UserContext.Provider value={{ user, loading, error, subtractBalance }}>

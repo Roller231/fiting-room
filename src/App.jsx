@@ -23,48 +23,72 @@ import './App.css'
 
 /* ================= APP CONTENT ================= */
 
-// ... (imports unchanged)
-
-/* ================= APP CONTENT ================= */
 const AppContent = () => {
   const { isFirstVisit, isDark } = useTheme()
-  const { user, loading, error } = useUser()  // NEW: Destructure error
+  const { initUser, user, loading } = useUser()
   const [activeTab, setActiveTab] = useState('home')
-  const isLocalDev = false
 
-  // IMPROVED: Better state handling
+  useEffect(() => {
+    let cancelled = false
+  
+    const start = async () => {
+      initTelegram()
+  
+      const tg = window.Telegram?.WebApp
+  
+      if (tg) {
+        tg.ready()
+        tg.expand()
+  
+        tg.onEvent('viewportChanged', () => {
+          tg.expand()
+        })
+  
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) {
+            tg.expand()
+          }
+        })
+      }
+  
+      let tgUser = tg?.initDataUnsafe?.user
+  
+      if (!tgUser) {
+        console.warn('[APP] No Telegram user → local fallback')
+  
+        if (!cancelled) {
+          initUser({
+            tg_id: 'local',
+            username: 'local_user',
+            firstname: 'Guest',
+            photo_url: null,
+          })
+        }
+        return
+      }
+  
+      if (!cancelled) {
+        initUser({
+          tg_id: String(tgUser.id),
+          username: tgUser.username || `tg_${tgUser.id}`,
+          firstname: tgUser.first_name || 'Guest',
+          photo_url: tgUser.photo_url || null,
+        })
+      }
+    }
+  
+    start()
+  
+    return () => {
+      cancelled = true
+    }
+  }, [initUser])
+  
+  
+
   if (isFirstVisit) return <ThemeSelector />
-  if (loading) return <div className="loader">Loading...</div>
-  if (error || !user) {
-    return (
-      <div className="error-screen" style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        textAlign: 'center',
-        padding: '20px',
-        background: '#f0f0f0'
-      }}>
-        <h1>🚫 Unable to Load App</h1>
-        <p style={{ fontSize: '18px', margin: '10px 0' }}>
-          {error || 'Unknown error occurred.'}
-        </p>
-        <p>
-          Please open this Mini App from <strong>Telegram</strong> (via bot or menu).
-        </p>
-        {isLocalDev && (
-          <p style={{ fontSize: '14px', color: '#666', marginTop: '20px' }}>
-            💡 In dev mode? Check console or restart `vite dev`.
-          </p>
-        )}
-      </div>
-    )
-  }
-
-
-
+  if (loading || !user) return <div className="loader">Loading user...</div>
+  
 
   const renderPage = () => {
     switch (activeTab) {
