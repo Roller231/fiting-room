@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { userExists, createUser, getUser, updateUser } from '../api/userApi'
+import { retrieveLaunchParams } from '@telegram-apps/sdk-react'  // Use SDK for safer access
 
 const UserContext = createContext(null)
 
@@ -14,6 +15,7 @@ const isLocalDev = import.meta.env.DEV
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)  // NEW: Error state
 
   const subtractBalance = async (amount) => {
     if (!user || user.balance < amount) return false
@@ -35,24 +37,39 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const init = async () => {
       try {
-        let tgUser
-        const tg = window.Telegram?.WebApp
+        setError(null)  // Reset error
+        let tgUser = null
 
-        if (tg?.initDataUnsafe?.user) {
-          tg.ready()
-          tg.expand()
-          tgUser = tg.initDataUnsafe.user
-        } else if (isLocalDev) {
-          tgUser = {
-            id: 120,
-            username: 'local_user',
-            first_name: 'Local',
-            last_name: 'Dev',
-            language_code: 'ru',
-            photo_url: null,
+        // IMPROVED: Use SDK first (safer), fallback to window.Telegram
+        const launchParams = retrieveLaunchParams()
+        if (launchParams.user) {
+          // SDK provides structured user
+          tgUser = launchParams.user
+          const tg = window.Telegram?.WebApp
+          if (tg) {
+            tg.ready()
+            tg.expand()
           }
         } else {
-          throw new Error('No telegram user')
+          const tg = window.Telegram?.WebApp
+          if (tg?.initDataUnsafe?.user) {
+            tg.ready()
+            tg.expand()
+            tgUser = tg.initDataUnsafe.user
+          } else if (isLocalDev) {
+            tgUser = {
+              id: 120,
+              username: 'local_user',
+              first_name: 'Local',
+              last_name: 'Dev',
+              language_code: 'ru',
+              photo_url: null,
+            }
+          }
+        }
+
+        if (!tgUser) {
+          throw new Error('Telegram Mini App must be opened within Telegram')
         }
 
         const { exists } = await userExists(tgUser.id)
@@ -60,11 +77,11 @@ export const UserProvider = ({ children }) => {
         if (!exists) {
           await createUser({
             tg_id: tgUser.id,
-            username: tgUser.username,
+            username: tgUser.username || tgUser.username,
             first_name: tgUser.first_name,
-            last_name: tgUser.last_name,
-            photo_url: tgUser.photo_url,
-            language_code: tgUser.language_code,
+            last_name: tgUser.last_name || '',
+            photo_url: tgUser.photo_url || null,
+            language_code: tgUser.language_code || 'en',
             balance: 0,
           })
         }
@@ -72,7 +89,8 @@ export const UserProvider = ({ children }) => {
         const fullUser = await getUser(tgUser.id)
         setUser(fullUser)
       } catch (e) {
-        console.error('[USER INIT FAILED]', e)
+        // console.error('[USER INIT FAILED]', e)  // OPTIONAL: Comment to suppress console spam
+        setError(e.message)
       } finally {
         setLoading(false)
       }
@@ -82,7 +100,7 @@ export const UserProvider = ({ children }) => {
   }, [])
 
   return (
-    <UserContext.Provider value={{ user, loading, subtractBalance }}>
+    <UserContext.Provider value={{ user, loading, error, subtractBalance }}>
       {children}
     </UserContext.Provider>
   )
