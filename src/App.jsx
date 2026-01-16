@@ -27,44 +27,48 @@ import './App.css'
 
 const AppContent = () => {
   const { isFirstVisit, isDark } = useTheme()
-  const { initUser, user, loading } = useUser() // используем loading
+  const { initUser, user, loading } = useUser()
   const [activeTab, setActiveTab] = useState('home')
+  
+  // Добавляем реф для защиты от повторной инициализации
+  const initedRef = useRef(false)
 
   useEffect(() => {
+    // Если уже инициализировали — выходим
+    if (initedRef.current) return
+    initedRef.current = true
+
     const tg = window.Telegram?.WebApp
     
-    // Если мы в Телеграме
     if (tg && tg.initDataUnsafe?.user) {
       tg.ready()
       tg.expand()
       
-      const tgUser = tg.initDataUnsafe.user
       initUser({
-        tg_id: tgUser.id,
-        username: tgUser.username || `tg_${tgUser.id}`,
-        firstname: tgUser.first_name || 'Guest',
-        photo_url: tgUser.photo_url || null,
+        tg_id: String(tg.initDataUnsafe.user.id),
+        username: tg.initDataUnsafe.user.username || `user_${tg.initDataUnsafe.user.id}`,
+        firstname: tg.initDataUnsafe.user.first_name || 'Guest',
+        photo_url: tg.initDataUnsafe.user.photo_url || null,
       })
     } else {
-      // Если мы в обычном браузере (Локальная разработка)
       console.warn("Telegram WebApp not found, loading local user")
       initUser({
         tg_id: '9999',
         username: 'localuser',
-        firstname: 'Guest',
+        firstname: 'Local Dev',
         photo_url: null,
       })
     }
-  }, []) // Оставляем пустым, чтобы сработало один раз
+  }, [initUser]) // initUser из контекста обычно стабилен
 
-  // ПРАВИЛЬНЫЙ ПОРЯДОК ПРОВЕРОК:
+  // 1. Сначала проверяем первый визит (выбор темы)
   if (isFirstVisit) return <ThemeSelector />
   
-  // Пока идет запрос к БД
-  if (loading) return <div className="loader">Loading user...</div>
+  // 2. Затем проверяем загрузку
+  if (loading) return <div className="loader">Loading user data...</div>
   
-  // Если загрузка завершена, но юзера нет (ошибка БД)
-  if (!user) return <div className="error">Failed to load user data</div>
+  // 3. Если загрузка завершена, но данных нет
+  if (!user) return <div className="error">Error: User not found in database</div>
   
 
   const renderPage = () => {
