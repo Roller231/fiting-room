@@ -58,7 +58,7 @@ const initUser = async ({ tg_id, username, firstname, photo_url }) => {
 
 
   return (
-    <UserContext.Provider value={{ user, loading, error, subtractBalance }}>
+    <UserContext.Provider value={{ user, loading,    initUser,    error, subtractBalance }}>
       {children}
     </UserContext.Provider>
   )
