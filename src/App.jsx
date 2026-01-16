@@ -28,88 +28,7 @@ const AppContent = () => {
   const { user, loading } = useUser()
   const [activeTab, setActiveTab] = useState('home')
 
-  if (isFirstVisit) return <ThemeSelector />
-  if (loading) return <div className="loader">Loading user...</div>
 
-  useEffect(() => {
-    let cancelled = false
-  
-    const start = async () => {
-      const isTelegram = await initTelegram()
-  
-      // ❌ НЕ Telegram → local user
-      if (!isTelegram) {
-        if (!cancelled) {
-          console.log('[APP] not TMA → local user')
-  
-          initUser({
-            id: 120,
-            username: 'local_user',
-            first_name: 'Local',
-            last_name: 'Dev',
-            photo_url: null,
-            language_code: 'ru',
-          })
-        }
-        return
-      }
-  
-      // ✅ 1. ПЫТАЕМСЯ launch params (канонично)
-      let tgUser = null
-  
-      try {
-        const { initData } = retrieveLaunchParams()
-        tgUser = initData?.user
-      } catch (e) {
-        console.warn('[APP] retrieveLaunchParams failed', e)
-      }
-  
-      // ✅ 2. FALLBACK на window.Telegram (ОБЯЗАТЕЛЬНО)
-      if (!tgUser) {
-        console.warn('[APP] launch params user empty → fallback to window.Telegram')
-  
-        const tg = window.Telegram?.WebApp
-        tg?.ready()
-  
-        tgUser = tg?.initDataUnsafe?.user
-      }
-  
-      // ❌ если даже тут нет user — это критическая ошибка
-      if (!tgUser) {
-        console.error('[APP] Telegram detected but user not found ANYWHERE')
-  
-        // ⚠️ DEV fallback, чтобы не зависать
-        initUser({
-          id: 999,
-          username: 'tg_dev_fallback',
-          first_name: 'Telegram',
-          last_name: 'Dev',
-          photo_url: null,
-          language_code: 'en',
-        })
-        return
-      }
-  
-      if (!cancelled) {
-        console.log('[APP] telegram user resolved', tgUser)
-  
-        initUser({
-          id: tgUser.id,
-          username: tgUser.username || `tg_${tgUser.id}`,
-          first_name: tgUser.first_name || 'Guest',
-          last_name: tgUser.last_name || '',
-          photo_url: tgUser.photo_url || null,
-          language_code: tgUser.language_code || 'en',
-        })
-      }
-    }
-  
-    start()
-  
-    return () => {
-      cancelled = true
-    }
-  }, [initUser])
   
 
   if (isFirstVisit) return <ThemeSelector />
@@ -167,6 +86,7 @@ export default function App() {
         <LanguageProvider>
           <AppContent />
         </LanguageProvider>
+
     </ThemeProvider>
   )
 }
