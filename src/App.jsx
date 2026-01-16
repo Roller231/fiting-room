@@ -30,13 +30,15 @@ const AppContent = () => {
 
   useEffect(() => {
     let cancelled = false
-
+  
     const start = async () => {
       const isTelegram = await initTelegram()
-
-      // ❌ НЕ Telegram → локальный пользователь
+  
+      // ❌ НЕ Telegram → local user
       if (!isTelegram) {
         if (!cancelled) {
+          console.log('[APP] not TMA → local user')
+  
           initUser({
             id: 120,
             username: 'local_user',
@@ -48,19 +50,46 @@ const AppContent = () => {
         }
         return
       }
-
-      // ✅ КАНОНИЧНЫЙ СПОСОБ
-      const { initData } = retrieveLaunchParams()
-      const tgUser = initData?.user
-
+  
+      // ✅ 1. ПЫТАЕМСЯ launch params (канонично)
+      let tgUser = null
+  
+      try {
+        const { initData } = retrieveLaunchParams()
+        tgUser = initData?.user
+      } catch (e) {
+        console.warn('[APP] retrieveLaunchParams failed', e)
+      }
+  
+      // ✅ 2. FALLBACK на window.Telegram (ОБЯЗАТЕЛЬНО)
+      if (!tgUser) {
+        console.warn('[APP] launch params user empty → fallback to window.Telegram')
+  
+        const tg = window.Telegram?.WebApp
+        tg?.ready()
+  
+        tgUser = tg?.initDataUnsafe?.user
+      }
+  
+      // ❌ если даже тут нет user — это критическая ошибка
+      if (!tgUser) {
+        console.error('[APP] Telegram detected but user not found ANYWHERE')
+  
+        // ⚠️ DEV fallback, чтобы не зависать
+        initUser({
+          id: 999,
+          username: 'tg_dev_fallback',
+          first_name: 'Telegram',
+          last_name: 'Dev',
+          photo_url: null,
+          language_code: 'en',
+        })
+        return
+      }
+  
       if (!cancelled) {
-        if (!tgUser) {
-          console.error('[APP] TMA detected but no user in launch params', initData)
-          return
-        }
-
-        console.log('[APP] telegram user (launch params)', tgUser)
-
+        console.log('[APP] telegram user resolved', tgUser)
+  
         initUser({
           id: tgUser.id,
           username: tgUser.username || `tg_${tgUser.id}`,
@@ -71,13 +100,14 @@ const AppContent = () => {
         })
       }
     }
-
+  
     start()
-
+  
     return () => {
       cancelled = true
     }
   }, [initUser])
+  
 
   if (isFirstVisit) return <ThemeSelector />
   if (loading || !user) return <div className="loader">Loading user...</div>
