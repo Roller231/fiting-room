@@ -33,32 +33,29 @@ const AppContent = () => {
   const initedRef = useRef(false)
 
   useEffect(() => {
-    if (initedRef.current) return
-    initedRef.current = true
-
     const tg = window.Telegram?.WebApp
-
-    if (!tg) {
-      initUser({
-        tg_id: '99999',
-        username: 'local_user',
-        firstname: 'Guest',
-        photo_url: null,
-      })
-      return
-    }
-
+    if (!tg) return
+  
     tg.ready()
+  
+    // 🔥 ВСЕГДА пытаемся раскрыть
     tg.expand()
-
-    const onViewport = () => tg.expand()
-    const onVisibility = () => !document.hidden && tg.expand()
-
-    tg.onEvent('viewportChanged', onViewport)
-    document.addEventListener('visibilitychange', onVisibility)
-
+  
+    // 🔁 повтор при изменении viewport
+    tg.onEvent('viewportChanged', () => {
+      tg.expand()
+    })
+  
+    // 🔁 повтор при возврате в фокус
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        tg.expand()
+      }
+    })
+  
     if (tg.initDataUnsafe?.user) {
       const tgUser = tg.initDataUnsafe.user
+  
       initUser({
         tg_id: String(tgUser.id),
         username: tgUser.username || `tg_${tgUser.id}`,
@@ -67,20 +64,16 @@ const AppContent = () => {
       })
     } else {
       initUser({
-        tg_id: '99999',
-        username: 'local_user',
+        tg_id: 'local',
+        username: 'localuser',
         firstname: 'Guest',
         photo_url: null,
       })
     }
-
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibility)
-    }
-  }, [initUser])
+  }, [])
 
   if (isFirstVisit) return <ThemeSelector />
-  if (loading || !user) return <div className="loader">Loading user...</div>
+  if (!user) return <div className="loader">Loading user...</div>
   
 
   const renderPage = () => {
