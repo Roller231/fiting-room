@@ -32,42 +32,41 @@ const AppContent = () => {
     let cancelled = false
   
     const start = async () => {
-      const isTelegram = await initTelegram()
-  
+      await initTelegram()
+    
       let tgUser = null
-  
-      if (isTelegram) {
-        try {
-          const { initData } = retrieveLaunchParams()
-          tgUser = initData?.user
-        } catch (e) {
-          console.error('[APP] retrieveLaunchParams failed', e)
-        }
+    
+      // 1️⃣ SDK (первичный)
+      try {
+        const { initData } = retrieveLaunchParams()
+        tgUser = initData?.user
+      } catch {}
+    
+      // 2️⃣ 🔥 ОБЯЗАТЕЛЬНЫЙ fallback (КАК В РАБОЧЕМ APP)
+      if (!tgUser) {
+        const tg = window.Telegram?.WebApp
+        tgUser = tg?.initDataUnsafe?.user
       }
-  
+    
       if (!tgUser) {
         console.warn('[APP] No Telegram user → local fallback')
-  
-        if (!cancelled) {
-          initUser({
-            tg_id: 99999,               // number!
-            username: 'local_user',
-            firstname: 'Guest',
-            photo_url: null,
-          })
-        }
+        initUser({
+          tg_id: 99999,
+          username: 'local_user',
+          firstname: 'Guest',
+          photo_url: null,
+        })
         return
       }
-  
-      if (!cancelled) {
-        initUser({
-          tg_id: tgUser.id,             // number!
-          username: tgUser.username || `tg_${tgUser.id}`,
-          firstname: tgUser.first_name || 'Guest',
-          photo_url: tgUser.photo_url || null,
-        })
-      }
+    
+      initUser({
+        tg_id: tgUser.id,
+        username: tgUser.username || `tg_${tgUser.id}`,
+        firstname: tgUser.first_name || 'Guest',
+        photo_url: tgUser.photo_url || null,
+      })
     }
+    
   
     start()
   
