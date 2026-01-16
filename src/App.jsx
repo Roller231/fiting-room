@@ -32,33 +32,25 @@ const AppContent = () => {
     let cancelled = false
   
     const start = async () => {
-      initTelegram()
+      const isTelegram = await initTelegram()
   
-      const tg = window.Telegram?.WebApp
+      let tgUser = null
   
-      if (tg) {
-        tg.ready()
-        tg.expand()
-  
-        tg.onEvent('viewportChanged', () => {
-          tg.expand()
-        })
-  
-        document.addEventListener('visibilitychange', () => {
-          if (!document.hidden) {
-            tg.expand()
-          }
-        })
+      if (isTelegram) {
+        try {
+          const { initData } = retrieveLaunchParams()
+          tgUser = initData?.user
+        } catch (e) {
+          console.error('[APP] retrieveLaunchParams failed', e)
+        }
       }
-  
-      let tgUser = tg?.initDataUnsafe?.user
   
       if (!tgUser) {
         console.warn('[APP] No Telegram user → local fallback')
   
         if (!cancelled) {
           initUser({
-            tg_id: 'local',
+            tg_id: 99999,               // number!
             username: 'local_user',
             firstname: 'Guest',
             photo_url: null,
@@ -69,7 +61,7 @@ const AppContent = () => {
   
       if (!cancelled) {
         initUser({
-          tg_id: String(tgUser.id),
+          tg_id: tgUser.id,             // number!
           username: tgUser.username || `tg_${tgUser.id}`,
           firstname: tgUser.first_name || 'Guest',
           photo_url: tgUser.photo_url || null,
@@ -83,6 +75,7 @@ const AppContent = () => {
       cancelled = true
     }
   }, [initUser])
+  
   
   
 

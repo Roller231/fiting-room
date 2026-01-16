@@ -10,18 +10,14 @@ export async function initTelegram() {
 
   init()
 
-  // viewport
   if (viewport.mount.isAvailable()) {
     await viewport.mount()
     viewport.expand()
   }
 
-  // fullscreen (Android + Desktop)
-  if (viewport.requestFullscreen.isAvailable()) {
-    viewport.requestFullscreen()
-  }
+  // ❌ fullscreen УБРАЛИ — он ломает race condition
+  // viewport.requestFullscreen()
 
-  // ❌ запрет свайпа вниз
   if (swipeBehavior.isSupported()) {
     swipeBehavior.mount()
     swipeBehavior.disableVertical()
