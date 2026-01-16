@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState,useRef } from 'react'
 import { retrieveLaunchParams } from '@telegram-apps/sdk-react'
 
 import { ThemeProvider, useTheme } from './context/ThemeContext'
@@ -23,60 +23,61 @@ import './App.css'
 
 /* ================= APP CONTENT ================= */
 
+
+
 const AppContent = () => {
   const { isFirstVisit, isDark } = useTheme()
   const { initUser, user, loading } = useUser()
   const [activeTab, setActiveTab] = useState('home')
 
+  const initedRef = useRef(false)
+
   useEffect(() => {
-    let cancelled = false
-  
-    const start = async () => {
-      await initTelegram()
-    
-      let tgUser = null
-    
-      // 1️⃣ SDK (первичный)
-      try {
-        const { initData } = retrieveLaunchParams()
-        tgUser = initData?.user
-      } catch {}
-    
-      // 2️⃣ 🔥 ОБЯЗАТЕЛЬНЫЙ fallback (КАК В РАБОЧЕМ APP)
-      if (!tgUser) {
-        const tg = window.Telegram?.WebApp
-        tgUser = tg?.initDataUnsafe?.user
-      }
-    
-      if (!tgUser) {
-        console.warn('[APP] No Telegram user → local fallback')
-        initUser({
-          tg_id: 99999,
-          username: 'local_user',
-          firstname: 'Guest',
-          photo_url: null,
-        })
-        return
-      }
-    
+    if (initedRef.current) return
+    initedRef.current = true
+
+    const tg = window.Telegram?.WebApp
+
+    if (!tg) {
       initUser({
-        tg_id: tgUser.id,
+        tg_id: '99999',
+        username: 'local_user',
+        firstname: 'Guest',
+        photo_url: null,
+      })
+      return
+    }
+
+    tg.ready()
+    tg.expand()
+
+    const onViewport = () => tg.expand()
+    const onVisibility = () => !document.hidden && tg.expand()
+
+    tg.onEvent('viewportChanged', onViewport)
+    document.addEventListener('visibilitychange', onVisibility)
+
+    if (tg.initDataUnsafe?.user) {
+      const tgUser = tg.initDataUnsafe.user
+      initUser({
+        tg_id: String(tgUser.id),
         username: tgUser.username || `tg_${tgUser.id}`,
         firstname: tgUser.first_name || 'Guest',
         photo_url: tgUser.photo_url || null,
       })
+    } else {
+      initUser({
+        tg_id: '99999',
+        username: 'local_user',
+        firstname: 'Guest',
+        photo_url: null,
+      })
     }
-    
-  
-    start()
-  
+
     return () => {
-      cancelled = true
+      document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [initUser])
-  
-  
-  
 
   if (isFirstVisit) return <ThemeSelector />
   if (loading || !user) return <div className="loader">Loading user...</div>
@@ -129,12 +130,5 @@ const AppContent = () => {
 /* ================= ROOT ================= */
 
 export default function App() {
-  return (
-    <ThemeProvider>
-        <LanguageProvider>
-          <AppContent />
-        </LanguageProvider>
-
-    </ThemeProvider>
-  )
+  return <AppContent />
 }
