@@ -40,7 +40,7 @@ const AppContent = () => {
       
       const tgUser = tg.initDataUnsafe.user
       initUser({
-        tg_id: String(tgUser.id),
+        tg_id: tgUser.id,
         username: tgUser.username || `tg_${tgUser.id}`,
         firstname: tgUser.first_name || 'Guest',
         photo_url: tgUser.photo_url || null,
