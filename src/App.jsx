@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { retrieveLaunchParams } from '@telegram-apps/sdk-react'
+
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 import { UserProvider, useUser } from './context/UserContext'
 import { LanguageProvider } from './context/LanguageContext'
@@ -30,12 +32,10 @@ const AppContent = () => {
     let cancelled = false
 
     const start = async () => {
-      await initTelegram()
+      const isTelegram = await initTelegram()
 
-      const tg = window.Telegram?.WebApp
-
-      // ❗ НЕ Telegram — локальный режим
-      if (!tg) {
+      // ❌ НЕ Telegram → локальный пользователь
+      if (!isTelegram) {
         if (!cancelled) {
           initUser({
             id: 120,
@@ -49,48 +49,26 @@ const AppContent = () => {
         return
       }
 
-      tg.ready()
-      tg.expand()
-
-      tg.onEvent('viewportChanged', () => tg.expand())
-
-      // 🔥 ВАЖНО: берём user ТОЛЬКО ПОСЛЕ ready()
-      const tgUser = tg.initDataUnsafe?.user
+      // ✅ КАНОНИЧНЫЙ СПОСОБ
+      const { initData } = retrieveLaunchParams()
+      const tgUser = initData?.user
 
       if (!cancelled) {
-        if (tgUser) {
-          console.log('[APP] telegram user', tgUser)
-
-          initUser({
-            id: tgUser.id,
-            username: tgUser.username || `tg_${tgUser.id}`,
-            first_name: tgUser.first_name || 'Guest',
-            last_name: tgUser.last_name || '',
-            photo_url: tgUser.photo_url || null,
-            language_code: tgUser.language_code || 'en',
-          })
-        } else {
-          console.warn('[APP] Telegram detected, but user is empty')
-
-          initUser({
-            id: 120,
-            username: 'local_user',
-            first_name: 'Local',
-            last_name: 'Dev',
-            photo_url: null,
-            language_code: 'ru',
-          })
+        if (!tgUser) {
+          console.error('[APP] TMA detected but no user in launch params', initData)
+          return
         }
-      }
 
-      const onFocus = () => {
-        if (!document.hidden) tg.expand()
-      }
+        console.log('[APP] telegram user (launch params)', tgUser)
 
-      document.addEventListener('visibilitychange', onFocus)
-
-      return () => {
-        document.removeEventListener('visibilitychange', onFocus)
+        initUser({
+          id: tgUser.id,
+          username: tgUser.username || `tg_${tgUser.id}`,
+          first_name: tgUser.first_name || 'Guest',
+          last_name: tgUser.last_name || '',
+          photo_url: tgUser.photo_url || null,
+          language_code: tgUser.language_code || 'en',
+        })
       }
     }
 
