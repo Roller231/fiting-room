@@ -27,35 +27,18 @@ import './App.css'
 
 const AppContent = () => {
   const { isFirstVisit, isDark } = useTheme()
-  const { initUser, user, loading } = useUser()
+  const { initUser, user, loading } = useUser() // используем loading
   const [activeTab, setActiveTab] = useState('home')
-
-  const initedRef = useRef(false)
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp
-    if (!tg) return
-  
-    tg.ready()
-  
-    // 🔥 ВСЕГДА пытаемся раскрыть
-    tg.expand()
-  
-    // 🔁 повтор при изменении viewport
-    tg.onEvent('viewportChanged', () => {
+    
+    // Если мы в Телеграме
+    if (tg && tg.initDataUnsafe?.user) {
+      tg.ready()
       tg.expand()
-    })
-  
-    // 🔁 повтор при возврате в фокус
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        tg.expand()
-      }
-    })
-  
-    if (tg.initDataUnsafe?.user) {
+      
       const tgUser = tg.initDataUnsafe.user
-  
       initUser({
         tg_id: String(tgUser.id),
         username: tgUser.username || `tg_${tgUser.id}`,
@@ -63,17 +46,25 @@ const AppContent = () => {
         photo_url: tgUser.photo_url || null,
       })
     } else {
+      // Если мы в обычном браузере (Локальная разработка)
+      console.warn("Telegram WebApp not found, loading local user")
       initUser({
-        tg_id: 'local',
+        tg_id: '9999',
         username: 'localuser',
         firstname: 'Guest',
         photo_url: null,
       })
     }
-  }, [])
+  }, []) // Оставляем пустым, чтобы сработало один раз
 
+  // ПРАВИЛЬНЫЙ ПОРЯДОК ПРОВЕРОК:
   if (isFirstVisit) return <ThemeSelector />
-  if (!user) return <div className="loader">Loading user...</div>
+  
+  // Пока идет запрос к БД
+  if (loading) return <div className="loader">Loading user...</div>
+  
+  // Если загрузка завершена, но юзера нет (ошибка БД)
+  if (!user) return <div className="error">Failed to load user data</div>
   
 
   const renderPage = () => {
