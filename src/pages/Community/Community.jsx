@@ -125,7 +125,7 @@ const Community = () => {
         </div>
       </div>
 
-      <div className="news-section">
+{/* <div className="news-section">
         <h2>📰 {t('community.news')}</h2>
         <div className="news-list">
           {news.map(item => (
@@ -139,7 +139,7 @@ const Community = () => {
           ))}
         </div>
       </div>
-{/* 
+ 
       <div className="invite-section">
         <div className="invite-card">
           <span className="invite-icon">🎁</span>

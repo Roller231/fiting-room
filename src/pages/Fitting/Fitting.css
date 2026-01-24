@@ -1,8 +1,10 @@
 .fitting {
-  padding: 64px 20px 84px;
-  min-height: 100vh;
+  padding: 64px 20px calc(84px + env(safe-area-inset-bottom));
+  min-height: calc(var(--vh, 1vh) * 140);
   margin-top: 90px;
+  overflow-x: hidden;
 }
+
 
 .fitting-header {
   text-align: center;

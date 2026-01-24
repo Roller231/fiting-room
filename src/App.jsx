@@ -33,6 +33,20 @@ const AppContent = () => {
   // Добавляем реф для защиты от повторной инициализации
   const initedRef = useRef(false)
 
+useEffect(() => {
+  const setVH = () => {
+    document.documentElement.style.setProperty(
+      '--vh',
+      `${window.innerHeight * 0.01}px`
+    );
+  };
+
+  setVH();
+  window.addEventListener('resize', setVH);
+  return () => window.removeEventListener('resize', setVH);
+}, []);
+
+
   useEffect(() => {
     // Если уже инициализировали — выходим
     if (initedRef.current) return
