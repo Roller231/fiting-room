@@ -22,8 +22,7 @@ const Fitting = () => {
   const TRY_ON_PRICE = 50;
 
   const [loading, setLoading] = useState(true);
-  const { subtractBalance } = useUser();
-
+  const { subtractBalance, user } = useUser();
   // 🔥 загрузка категорий + всех продуктов
   useEffect(() => {
     const load = async () => {
@@ -106,7 +105,9 @@ const Fitting = () => {
         const formData = new FormData();
         formData.append('product_id', randomProduct.id);
         formData.append('user_photo', userPhotoFile);
-      
+        if (user?.tg_id || user?.id) {
+          formData.append('tg_id', user.tg_id || user.id);
+        }
         setIsProcessing(true);
       
         try {
@@ -187,26 +188,43 @@ const Fitting = () => {
 }
       </button>
       {/* 🧩 Категории */}
-      <div className="categories-scroll">
-        <button
-          className={`category-btn ${selectedCategory === 'all' ? 'active' : ''}`}
-          onClick={() => setSelectedCategory('all')}
-        >
-          <span>🎯</span>
-          <span>{t('fitting.categories.all')}</span>
-        </button>
 
-        {categories.map(cat => (
-          <button
-            key={cat.id}
-            className={`category-btn ${selectedCategory === cat.id ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(cat.id)}
-          >
-            <span>👕</span>
-            <span>{cat.name}</span>
-          </button>
-        ))}
+<div className="categories-section">
+  <div className="categories-scroll">
+    {/* Категория: Все */}
+    <div 
+      className={`category-tile ${selectedCategory === 'all' ? 'active' : ''}`}
+      onClick={() => setSelectedCategory('all')}
+    >
+      <div className="tile-media">
+        <span className="tile-emoji">🎯</span>
       </div>
+      <span className="tile-label">{t('fitting.categories.all')}</span>
+    </div>
+
+    {/* Динамические категории */}
+    {categories.map(cat => (
+      <div 
+        key={cat.id} 
+        className={`category-tile ${selectedCategory === cat.id ? 'active' : ''}`}
+        onClick={() => setSelectedCategory(cat.id)}
+      >
+        <div className="tile-media">
+          {cat.imageUrl ? (
+            <img 
+              src={cat.imageUrl}
+              alt={cat.name} 
+              className="tile-img"
+            />
+          ) : (
+            <span className="tile-emoji">👕</span>
+          )}
+        </div>
+        <span className="tile-label">{cat.name}</span>
+      </div>
+    ))}
+  </div>
+</div>
 
       {/* 👕 Товары */}
       <div className="clothing-grid">

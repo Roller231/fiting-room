@@ -213,23 +213,43 @@ const Marketplace = () => {
 
 
       {/* 🧩 КАТЕГОРИИ */}
-      <div className="categories-scroll">
-        <button
-          className={`category-btn ${selectedCategory === 'all' ? 'active' : ''}`}
-          onClick={() => setSelectedCategory('all')}
-        >
-          🎯 {t('fitting.categories.all')}
-        </button>
-
-        {categories.map(cat => (
-          <button
-            key={cat.id}
-            className={`category-btn ${selectedCategory === cat.id ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(cat.id)}
+{/* 🧩 КАТЕГОРИИ (С подгрузкой картинок из API) */}
+<div className="categories-section">
+        <div className="categories-scroll">
+          <div 
+            className={`category-tile ${selectedCategory === 'all' ? 'active' : ''}`}
+            onClick={() => setSelectedCategory('all')}
           >
-            👕 {cat.name}
-          </button>
-        ))}
+            <div className="tile-media">
+              <span className="tile-emoji">🎯</span>
+            </div>
+            <span className="tile-label">{t('fitting.categories.all')}</span>
+          </div>
+
+          {categories.map(cat => (
+            <div 
+              key={cat.id} 
+              className={`category-tile ${selectedCategory === cat.id ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat.id)}
+            >
+              <div className="tile-media">
+                {/* Проверяем: если у категории есть фото, берем его с сервера, 
+                   как в карточках товаров. Иначе ставим дефолтную иконку 
+                */}
+                {cat.imageUrl || cat.icon ? (
+                  <img 
+                    src={cat.imageUrl || cat.icon}
+                    alt={cat.name} 
+                    className="tile-img"
+                  />
+                ) : (
+                  <span className="tile-emoji">👕</span>
+                )}
+              </div>
+              <span className="tile-label">{cat.name}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* 👕 ТОВАРЫ */}

@@ -118,7 +118,13 @@ const translations = {
       version: 'Версия',
       terms: 'Условия использования',
       privacy: 'Политика конфиденциальности',
-      licenses: 'Лицензии'
+      licenses: 'Лицензии',
+      termsTitle: 'Условия использования',
+termsContent: '1. AI-генерация: Результаты могут быть неточными.\n2. Платежи: Алмазы не подлежат возврату.\n3. Контент: Не загружайте запрещенные фото.',
+privacyTitle: 'Политика конфиденциальности',
+privacyContent: '1. Фото: Удаляются через 24 часа.\n2. Данные: Мы не передаем личную информацию третьим лицам.\n3. Безопасность: Данные зашифрованы.',
+licensesTitle: 'Лицензии',
+licensesContent: 'Используется ПО с лицензиями MIT, Apache 2.0 и CreativeML Open RAIL-M для нейросетей.',
     },
     
     // Community
@@ -291,7 +297,13 @@ const translations = {
       version: 'Version',
       terms: 'Terms of use',
       privacy: 'Privacy policy',
-      licenses: 'Licenses'
+      licenses: 'Licenses',
+      termsTitle: 'Terms of Use',
+termsContent: '1. AI Generation: Results may vary.\n2. Payments: Diamonds are non-refundable.\n3. Content: No illegal uploads.',
+privacyTitle: 'Privacy Policy',
+privacyContent: '1. Photos: Deleted after 24 hours.\n2. Data: No third-party sharing.\n3. Security: Encrypted storage.',
+licensesTitle: 'Licenses',
+licensesContent: 'Uses MIT, Apache 2.0, and CreativeML Open RAIL-M licensed software.'
     },
     
     // Community
@@ -464,7 +476,13 @@ const translations = {
       version: 'Нұсқа',
       terms: 'Пайдалану шарттары',
       privacy: 'Құпиялылық саясаты',
-      licenses: 'Лицензиялар'
+      licenses: 'Лицензиялар',
+      termsTitle: 'Пайдалану шарттары',
+termsContent: '1. AI генерациясы: Нәтижелер әртүрлі болуы мүмкін.\n2. Төлемдер: Алмаздар қайтарылмайды.\n3. Контент: Заңсыз фотоларға тыйым салынады.',
+privacyTitle: 'Құпиялылық саясаты',
+privacyContent: '1. Фото: 24 сағаттан кейін өшіріледі.\n2. Мәліметтер: Үшінші тұлғаларға берілмейді.\n3. Қауіпсіздік: Деректер шифрланған.',
+licensesTitle: 'Лицензиялар',
+licensesContent: 'MIT, Apache 2.0 және CreativeML Open RAIL-M лицензиялары қолданылады.',
     },
     
     // Community

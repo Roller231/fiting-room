@@ -9,6 +9,9 @@ const Settings = () => {
   const [vibration, setVibration] = useState(true);
   const [notifications, setNotifications] = useState(true);
 
+  // Состояние для активной модалки
+  const [activeModal, setActiveModal] = useState(null);
+
   const languages = [
     { id: 'ru', name: 'Русский', flag: 'https://flagcdn.com/w40/ru.png' },
     { id: 'en', name: 'English', flag: 'https://flagcdn.com/w40/gb.png' },
@@ -23,7 +26,6 @@ const Settings = () => {
 
       <div className="settings-section">
         <h2>🎨 {t('settings.appearance')}</h2>
-        
         <div className="setting-item">
           <div className="setting-info">
             <span className="setting-icon">{isDark ? '🌙' : '☀️'}</span>
@@ -61,7 +63,6 @@ const Settings = () => {
 
       <div className="settings-section">
         <h2>🔔 {t('settings.notifications')}</h2>
-        
         <div className="setting-item">
           <div className="setting-info">
             <span className="setting-icon">📳</span>
@@ -110,13 +111,31 @@ const Settings = () => {
             </div>
           </div>
           <div className="about-links">
-            <button className="about-link">📄 {t('settings.terms')}</button>
-            <button className="about-link">🔒 {t('settings.privacy')}</button>
-            <button className="about-link">📝 {t('settings.licenses')}</button>
+            <button className="about-link" onClick={() => setActiveModal('terms')}>
+              📄 {t('settings.terms')}
+            </button>
+            <button className="about-link" onClick={() => setActiveModal('privacy')}>
+              🔒 {t('settings.privacy')}
+            </button>
+            <button className="about-link" onClick={() => setActiveModal('licenses')}>
+              📝 {t('settings.licenses')}
+            </button>
           </div>
         </div>
       </div>
 
+      {/* Модалка с переводами */}
+      {activeModal && (
+        <div className="modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>{t(`settings.${activeModal}Title`)}</h3>
+            <div className="modal-body">
+              <p style={{ whiteSpace: 'pre-line' }}>{t(`settings.${activeModal}Content`)}</p>
+            </div>
+            <button className="modal-btn" onClick={() => setActiveModal(null)}>OK</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

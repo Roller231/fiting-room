@@ -10,7 +10,161 @@
   text-align: center;
   margin-bottom: 25px;
 }
+/* --- СЕКЦИЯ КАТЕГОРИЙ (Идентично Fitting) --- */
+.categories-section {
+  width: 100%;
+  overflow: hidden; 
+  margin-bottom: 25px;
+}
 
+.categories-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  margin: 0 -20px; 
+  padding: 10px 20px; 
+  scrollbar-width: none; 
+  -webkit-overflow-scrolling: touch;
+}
+
+.categories-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.category-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  width: 80px;
+}
+
+.tile-media {
+  width: 80px;
+  height: 90px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+}
+
+/* Темы для плиток */
+.marketplace.dark .tile-media {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.marketplace.light .tile-media {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+}
+
+.tile-emoji {
+  font-size: 30px;
+}
+
+.tile-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.marketplace.dark .tile-label { color: rgba(255, 255, 255, 0.4); }
+.marketplace.light .tile-label { color: #64748b; }
+
+/* Активное состояние (Active) */
+.category-tile.active .tile-media {
+  transform: translateY(-2px);
+}
+
+.marketplace.dark .category-tile.active .tile-media {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: #6366f1;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+}
+
+.marketplace.light .category-tile.active .tile-media {
+  background: #fff;
+  border-color: #3b82f6;
+  box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2);
+}
+
+.marketplace.dark .category-tile.active .tile-label { color: #fff; }
+.marketplace.light .category-tile.active .tile-label { color: #1e40af; }
+
+/* --- ОСТАЛЬНЫЕ СТИЛИ MARKETPLACE (СОХРАНЕНЫ) --- */
+
+.clothing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.clothing-item {
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.marketplace.dark .clothing-item { background: rgba(30, 40, 80, 0.6); }
+.marketplace.light .clothing-item { 
+  background: #fff; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
+}
+
+.clothing-item.selected {
+  transform: scale(1.02);
+}
+
+.marketplace.dark .clothing-item.selected { border-color: #a5b4fc; }
+.marketplace.light .clothing-item.selected { border-color: #3b82f6; }
+
+.clothing-item img {
+  width: 100%;
+  height: 140px;
+  object-fit: contain;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.try-on-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: 0.3s;
+}
+
+.marketplace.dark .try-on-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+}
+
+.marketplace.light .try-on-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  color: white;
+}
+
+.try-on-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .mp-header h1 {
   font-size: 28px;
   margin: 0 0 8px;
