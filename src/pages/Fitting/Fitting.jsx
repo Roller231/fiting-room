@@ -105,9 +105,8 @@ const Fitting = () => {
         const formData = new FormData();
         formData.append('product_id', randomProduct.id);
         formData.append('user_photo', userPhotoFile);
-        if (user?.tg_id || user?.id) {
           formData.append('tg_id', user.tg_id || user.id);
-        }
+        
         setIsProcessing(true);
       
         try {
