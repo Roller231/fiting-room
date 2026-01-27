@@ -32,7 +32,23 @@ const AppContent = () => {
   
   // Добавляем реф для защиты от повторной инициализации
   const initedRef = useRef(false)
-
+  useEffect(() => {
+    let mounted = true
+  
+    const initTG = async () => {
+      const ok = await initTelegram()
+      if (!ok) {
+        console.warn('Not inside Telegram WebApp')
+      }
+    }
+  
+    initTG()
+  
+    return () => {
+      mounted = false
+    }
+  }, [])
+  
 useEffect(() => {
   const setVH = () => {
     document.documentElement.style.setProperty(
