@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", "app/storage")).resolve()
+MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", "media")).resolve()
 PRODUCTS_DIR = MEDIA_ROOT / os.getenv("PRODUCTS_DIR", "products")
 UPLOADS_DIR  = MEDIA_ROOT / os.getenv("UPLOADS_DIR", "uploads")
 TRYON_DIR = MEDIA_ROOT / "tryon"
