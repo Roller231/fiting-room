@@ -51,7 +51,7 @@ async def list_files(target_dir: str = "default"):
                 "name": p.name,
                 "path": p.relative_to(BASE_DIR).as_posix(),
                 "size": p.stat().st_size,
-                "url": f"/static/{p.relative_to(BASE_DIR).as_posix()}"
+                "url": f"/media/{p.relative_to(BASE_DIR).as_posix()}"
             })
     return JSONResponse(files)
 

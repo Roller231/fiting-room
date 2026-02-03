@@ -78,7 +78,7 @@ app.include_router(razdels.router)
 
 # Статика (выдача файлов из MEDIA_ROOT)
 ensure_dirs()
-app.mount("/static", StaticFiles(directory="media"), name="static")
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 
 
@@ -154,7 +154,7 @@ async def try_on(
     with open(output_path, "wb") as f:
         f.write(result_png)
 
-    return {"url": f"/static/tryon/{file_name}"}
+    return {"url": f"/media/tryon/{file_name}"}
 
 
 @app.post("/try-on/raw")
@@ -190,7 +190,7 @@ async def try_on_raw(
     with open(out_path, "wb") as f:
         f.write(result_png)
 
-    return {"url": f"/static/tryon/{file_name}"}
+    return {"url": f"/media/tryon/{file_name}"}
 
 #uvicorn main:app --reload
 
