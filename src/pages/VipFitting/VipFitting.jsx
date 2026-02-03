@@ -3,6 +3,8 @@ import { useTheme } from '../../context/ThemeContext';
 import { useUser } from '../../context/UserContext';
 import { useLanguage } from '../../context/LanguageContext';
 import './VipFitting.css';
+import { fetchShopCategoryTree } from '../../api/catalogApi';
+import CategoryTreeBar from '../../components/CategoryTreeBar/CategoryTreeBar';
 
 
 const VipFitting = () => {
@@ -15,6 +17,8 @@ const VipFitting = () => {
   const [userPhotoFile, setUserPhotoFile] = useState(null);
   const [userPhotoPreview, setUserPhotoPreview] = useState(null);
   const [result, setResult] = useState(null);
+  const [categoryTree, setCategoryTree] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const handleDownload = async (imageUrl) => {
     try {
       const response = await fetch(imageUrl, { mode: 'cors' });
@@ -105,63 +109,104 @@ useEffect(() => {
 
   loadData();
 }, []);
-const filteredProducts = selectedStore
+
+useEffect(() => {
+  const loadShopTree = async () => {
+    if (!selectedStore) {
+      setCategoryTree([]);
+      return;
+    }
+
+    try {
+      const tree = await fetchShopCategoryTree(selectedStore);
+      setCategoryTree(tree);
+    } catch (e) {
+      console.error(e);
+      setCategoryTree([]);
+    }
+  };
+
+  loadShopTree();
+}, [selectedStore]);
+
+const buildDescendantMap = (nodes, map = new Map()) => {
+  const collect = (n) => {
+    const ids = [n.id];
+    if (n.children?.length) {
+      for (const ch of n.children) {
+        ids.push(...collect(ch));
+      }
+    }
+    map.set(n.id, ids);
+    return ids;
+  };
+
+  for (const n of nodes) collect(n);
+  return map;
+};
+
+const descendantMap = buildDescendantMap(categoryTree);
+
+const shopProducts = selectedStore
   ? products.filter(p => p.shop_id === selectedStore)
   : [];
 
+const filteredProducts = (() => {
+    if (!selectedStore) return [];
+    if (!selectedCategory) return shopProducts;
+    const ids = descendantMap.get(selectedCategory) || [selectedCategory];
+    const allowed = new Set(ids);
+    return shopProducts.filter(p => allowed.has(p.category_id));
+  })();
 
+const handleTryOn = async () => {
+  if (!userPhotoFile || !selectedItem) return;
 
+  // 1️⃣ списываем баланс
+  const success = await subtractBalance(selectedItem.price);
 
-  
+  if (!success) {
+    alert(t('common.insufficientFunds'));
+    return;
+  }
 
-  const handleTryOn = async () => {
-    if (!userPhotoFile || !selectedItem) return;
-  
-    // 1️⃣ списываем баланс
-    const success = await subtractBalance(selectedItem.price);
-  
-    if (!success) {
-      alert(t('common.insufficientFunds'));
-      return;
-    }
-  
-    // 2️⃣ формируем FormData
-    const formData = new FormData();
-    formData.append('product_id', selectedItem.id);
-    formData.append('user_photo', userPhotoFile);
-  
-    setIsProcessing(true);
-  
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/try-on`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
-  
-      if (!res.ok) {
-        throw new Error('Try-on failed');
+  // 2️⃣ формируем FormData
+  const formData = new FormData();
+  formData.append('product_id', selectedItem.id);
+  formData.append('user_photo', userPhotoFile);
+
+  setIsProcessing(true);
+
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/try-on`,
+      {
+        method: 'POST',
+        body: formData,
       }
-  
-      const data = await res.json();
-  
-      // 3️⃣ показываем результат
-      setResult({
-        image: `${import.meta.env.VITE_API_URL}${data.url}`,
-        item: selectedItem,
-      });
-    } catch (e) {
-      console.error(e);
-      alert('Ошибка примерки');
-  
-      // ⚠️ по желанию: вернуть баланс
-      // await refundBalance(selectedItem.price)
-    } finally {
-      setIsProcessing(false);
+    );
+
+    if (!res.ok) {
+      throw new Error('Try-on failed');
     }
-  };
+
+    const data = await res.json();
+
+    // 3️⃣ показываем результат
+    setResult({
+      image: `${import.meta.env.VITE_API_URL}${data.url}`,
+      item: selectedItem,
+    });
+  } catch (e) {
+    console.error(e);
+    alert('Ошибка примерки');
+
+    // ⚠️ по желанию: вернуть баланс
+    // await refundBalance(selectedItem.price)
+  } finally {
+    setIsProcessing(false);
+  }
+};
   
   
 
@@ -197,6 +242,7 @@ const filteredProducts = selectedStore
       onClick={() => {
         setSelectedStore(store.id);
         setSelectedItem(null);
+        setSelectedCategory(null);
       }}
     >
       {store.imageUrl && (
@@ -219,6 +265,15 @@ const filteredProducts = selectedStore
       {selectedStore && (
   <div className="items-section">
     <h2>{t('vip.collection')}</h2>
+
+    <CategoryTreeBar
+      tree={categoryTree}
+      selectedId={selectedCategory}
+      onSelect={(id) => {
+        setSelectedCategory(id);
+        setSelectedItem(null);
+      }}
+    />
 
     <div className="items-grid">
       {filteredProducts.map(item => (

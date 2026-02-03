@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, get_session
 from .models import Base, Product
 from .utils import ensure_dirs, save_upload_to, UPLOADS_DIR, MEDIA_ROOT, TRYON_DIR
-from .routers import shops, categories, users, products, razdels, upload
+from .routers import products, categories, shops, users, razdels, media
 from .services.try_on import run_try_on
 
 from sqladmin import Admin
@@ -68,17 +68,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Статика (выдача файлов из MEDIA_ROOT)
-ensure_dirs()
-app.mount("/media", StaticFiles(directory=str(MEDIA_ROOT)), name="media")
-
 # Подключаем CRUD роутеры
+app.include_router(media.router)
 app.include_router(shops.router)
 app.include_router(categories.router)
 app.include_router(users.router)
 app.include_router(products.router)
 app.include_router(razdels.router)
-app.include_router(upload.router)
+
+# Статика (выдача файлов из MEDIA_ROOT)
+ensure_dirs()
+app.mount("/static", StaticFiles(directory="media"), name="static")
 
 
 
@@ -90,6 +90,27 @@ async def on_startup():
     # создаём таблицы при старте (для простоты; в проде лучше Alembic)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+        try:
+            parent_id_exists = await conn.scalar(
+                text(
+                    """
+                    SELECT COUNT(*)
+                    FROM information_schema.columns
+                    WHERE table_schema = DATABASE()
+                      AND table_name = 'categories'
+                      AND column_name = 'parent_id'
+                    """
+                )
+            )
+            if parent_id_exists == 0:
+                await conn.execute(
+                    text(
+                        "ALTER TABLE categories ADD COLUMN parent_id INT NULL, ADD INDEX ix_categories_parent_id (parent_id)"
+                    )
+                )
+        except Exception as e:
+            print(f"Warning: could not ensure categories.parent_id exists: {e}")
 
 @app.get("/health")
 async def health(db: AsyncSession = Depends(get_session)):
@@ -133,7 +154,7 @@ async def try_on(
     with open(output_path, "wb") as f:
         f.write(result_png)
 
-    return {"url": f"/media/tryon/{file_name}"}
+    return {"url": f"/static/tryon/{file_name}"}
 
 
 @app.post("/try-on/raw")
@@ -169,7 +190,7 @@ async def try_on_raw(
     with open(out_path, "wb") as f:
         f.write(result_png)
 
-    return {"url": f"/media/tryon/{file_name}"}
+    return {"url": f"/static/tryon/{file_name}"}
 
 #uvicorn main:app --reload
 

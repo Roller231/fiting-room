@@ -3,7 +3,8 @@ import { useTheme } from '../../context/ThemeContext';
 import { useUser } from '../../context/UserContext';
 import { useLanguage } from '../../context/LanguageContext';
 import './Marketplace.css';
-import { fetchCategories, fetchProducts } from '../../api/catalogApi';
+import { fetchCategoryTree, fetchProducts } from '../../api/catalogApi';
+import CategoryTreeBar from '../../components/CategoryTreeBar/CategoryTreeBar';
 
 const Marketplace = () => {
   const { isDark } = useTheme();
@@ -18,9 +19,9 @@ const Marketplace = () => {
   const [result, setResult] = useState(null);
   const [copiedLink, setCopiedLink] = useState(null);
 
-  const [categories, setCategories] = useState([]);
+  const [categoryTree, setCategoryTree] = useState([]);
   const [products, setProducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
   const [userPhotoFile, setUserPhotoFile] = useState(null);
@@ -43,9 +44,9 @@ const Marketplace = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const cats = await fetchCategories();
+        const tree = await fetchCategoryTree();
         const prods = await fetchProducts();
-        setCategories(cats);
+        setCategoryTree(tree);
         setProducts(prods);
       } catch (e) {
         console.error(e);
@@ -55,6 +56,24 @@ const Marketplace = () => {
     };
     load();
   }, []);
+
+  const buildDescendantMap = (nodes, map = new Map()) => {
+    const collect = (n) => {
+      const ids = [n.id];
+      if (n.children?.length) {
+        for (const ch of n.children) {
+          ids.push(...collect(ch));
+        }
+      }
+      map.set(n.id, ids);
+      return ids;
+    };
+
+    for (const n of nodes) collect(n);
+    return map;
+  };
+
+  const descendantMap = buildDescendantMap(categoryTree);
 
   /* ===========================
      ФИЛЬТР ТОЛЬКО MARKETPLACE
@@ -67,10 +86,12 @@ const Marketplace = () => {
   selectedItem &&
     !isProcessing;
 
-  const filteredProducts =
-    selectedCategory === 'all'
-      ? marketplaceProducts
-      : marketplaceProducts.filter(p => p.category_id === selectedCategory);
+  const filteredProducts = (() => {
+    if (!selectedCategory) return marketplaceProducts;
+    const ids = descendantMap.get(selectedCategory) || [selectedCategory];
+    const allowed = new Set(ids);
+    return marketplaceProducts.filter(p => allowed.has(p.category_id));
+  })();
 
   /* ===========================
      ПАРСИНГ URL (НЕ УДАЛЯЛ)
@@ -213,44 +234,12 @@ const Marketplace = () => {
 
 
       {/* 🧩 КАТЕГОРИИ */}
-{/* 🧩 КАТЕГОРИИ (С подгрузкой картинок из API) */}
-<div className="categories-section">
-        <div className="categories-scroll">
-          <div 
-            className={`category-tile ${selectedCategory === 'all' ? 'active' : ''}`}
-            onClick={() => setSelectedCategory('all')}
-          >
-            <div className="tile-media">
-              <span className="tile-emoji">🎯</span>
-            </div>
-            <span className="tile-label">{t('fitting.categories.all')}</span>
-          </div>
 
-          {categories.map(cat => (
-            <div 
-              key={cat.id} 
-              className={`category-tile ${selectedCategory === cat.id ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat.id)}
-            >
-              <div className="tile-media">
-                {/* Проверяем: если у категории есть фото, берем его с сервера, 
-                   как в карточках товаров. Иначе ставим дефолтную иконку 
-                */}
-                {cat.imageUrl || cat.icon ? (
-                  <img 
-                    src={cat.imageUrl || cat.icon}
-                    alt={cat.name} 
-                    className="tile-img"
-                  />
-                ) : (
-                  <span className="tile-emoji">👕</span>
-                )}
-              </div>
-              <span className="tile-label">{cat.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <CategoryTreeBar
+        tree={categoryTree}
+        selectedId={selectedCategory}
+        onSelect={setSelectedCategory}
+      />
 
       {/* 👕 ТОВАРЫ */}
       <div className="clothing-grid">

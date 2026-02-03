@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { fetchCategories, fetchProducts } from '../../api/catalogApi';
+import { fetchCategoryTree, fetchProducts } from '../../api/catalogApi';
 import './Fitting.css';
 import { useUser } from '../../context/UserContext';
+import CategoryTreeBar from '../../components/CategoryTreeBar/CategoryTreeBar';
 
 const Fitting = () => {
   const { isDark } = useTheme();
   const { t } = useLanguage();
 
-  const [categories, setCategories] = useState([]);
+  const [categoryTree, setCategoryTree] = useState([]);
   const [products, setProducts] = useState([]);
 
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const [userPhoto, setUserPhoto] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -27,10 +28,10 @@ const Fitting = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const cats = await fetchCategories();
+        const tree = await fetchCategoryTree();
         const prods = await fetchProducts();
 
-        setCategories(cats);
+        setCategoryTree(tree);
         setProducts(prods);
       } catch (e) {
         console.error(e);
@@ -41,6 +42,32 @@ const Fitting = () => {
 
     load();
   }, []);
+
+  const buildDescendantMap = (nodes, map = new Map()) => {
+    const collect = (n) => {
+      const ids = [n.id];
+      if (n.children?.length) {
+        for (const ch of n.children) {
+          ids.push(...collect(ch));
+        }
+      }
+      map.set(n.id, ids);
+      return ids;
+    };
+
+    for (const n of nodes) collect(n);
+    return map;
+  };
+
+  const descendantMap = buildDescendantMap(categoryTree);
+
+  // 🔥 продукты по категории
+  const filteredProducts = (() => {
+    if (!selectedCategory) return products;
+    const ids = descendantMap.get(selectedCategory) || [selectedCategory];
+    const allowed = new Set(ids);
+    return products.filter(p => allowed.has(p.category_id));
+  })();
 
   const handleDownload = async (imageUrl) => {
     try {
@@ -63,13 +90,6 @@ const Fitting = () => {
     }
   };
   
-
-  // 🔥 продукты по категории
-  const filteredProducts =
-    selectedCategory === 'all'
-      ? products
-      : products.filter(p => p.category_id === selectedCategory);
-
       const canTryOn =
       userPhotoFile &&
       filteredProducts.length > 0 &&
@@ -188,42 +208,11 @@ const Fitting = () => {
       </button>
       {/* 🧩 Категории */}
 
-<div className="categories-section">
-  <div className="categories-scroll">
-    {/* Категория: Все */}
-    <div 
-      className={`category-tile ${selectedCategory === 'all' ? 'active' : ''}`}
-      onClick={() => setSelectedCategory('all')}
-    >
-      <div className="tile-media">
-        <span className="tile-emoji">🎯</span>
-      </div>
-      <span className="tile-label">{t('fitting.categories.all')}</span>
-    </div>
-
-    {/* Динамические категории */}
-    {categories.map(cat => (
-      <div 
-        key={cat.id} 
-        className={`category-tile ${selectedCategory === cat.id ? 'active' : ''}`}
-        onClick={() => setSelectedCategory(cat.id)}
-      >
-        <div className="tile-media">
-          {cat.imageUrl ? (
-            <img 
-              src={cat.imageUrl}
-              alt={cat.name} 
-              className="tile-img"
-            />
-          ) : (
-            <span className="tile-emoji">👕</span>
-          )}
-        </div>
-        <span className="tile-label">{cat.name}</span>
-      </div>
-    ))}
-  </div>
-</div>
+      <CategoryTreeBar
+        tree={categoryTree}
+        selectedId={selectedCategory}
+        onSelect={setSelectedCategory}
+      />
 
       {/* 👕 Товары */}
       <div className="clothing-grid">

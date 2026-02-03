@@ -10,6 +10,7 @@ from sqlalchemy import (
     DateTime,
     Numeric,
 )
+from typing import Optional
 from datetime import datetime
 from decimal import Decimal
 
@@ -46,8 +47,20 @@ class Category(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
-    type: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    imageUrl: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    type: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    imageUrl: Mapped[Optional[str]] = mapped_column(String(1024), nullable=True)
+
+    parent_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("categories.id"), nullable=True
+    )
+
+    parent: Mapped[Optional["Category"]] = relationship(
+        remote_side="Category.id",
+        back_populates="children",
+    )
+    children: Mapped[list["Category"]] = relationship(
+        back_populates="parent",
+    )
 
     products: Mapped[list["Product"]] = relationship(
         back_populates="category", cascade="all, delete"

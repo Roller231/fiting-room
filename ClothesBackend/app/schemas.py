@@ -1,6 +1,6 @@
 # app/schemas.py
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
 
@@ -29,16 +29,22 @@ class CategoryBase(BaseModel):
     name: str
     type: Optional[str] = None
     imageUrl: Optional[str] = None   # 👈 ДОБАВИТЬ
+    parent_id: Optional[int] = None
 
 class CategoryCreate(CategoryBase): pass
 class CategoryUpdate(BaseModel):
     name: Optional[str] = None
     type: Optional[str] = None
     imageUrl: Optional[str] = None   # 👈 ДОБАВИТЬ
+    parent_id: Optional[int] = None
 
 class CategoryOut(CategoryBase):
     id: int
     class Config: from_attributes = True
+
+
+class CategoryTreeOut(CategoryOut):
+    children: List["CategoryTreeOut"] = Field(default_factory=list)
 
 # --- Products ---
 class ProductBase(BaseModel):

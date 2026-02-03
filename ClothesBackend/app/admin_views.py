@@ -1,17 +1,11 @@
 from sqladmin import ModelView
 from .models import Product, Category, Shop, User, Razdel
-
-
-from .models import Product, Category, Shop, Razdel, User
 from .admin_fields import ImageUploadMixin
 
 
-class ProductAdmin(ImageUploadMixin, ModelView, model=Product):
+class ProductAdmin(ModelView, model=Product):
     name = "Product"
     name_plural = "Products"
-
-    image_field_name = "photo"
-    upload_dir = "products"
 
     column_list = [
         Product.id,
@@ -22,7 +16,6 @@ class ProductAdmin(ImageUploadMixin, ModelView, model=Product):
         Product.razdel,     # 🔥 имя раздела
         Product.photo,
         Product.gif,
-
         Product.marketplace_url
     ]
 
@@ -34,9 +27,7 @@ class ProductAdmin(ImageUploadMixin, ModelView, model=Product):
         Product.price,
         Product.photo,
         Product.gif,
-
         Product.marketplace_url
-
     ]
 
 
