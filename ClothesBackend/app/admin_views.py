@@ -16,6 +16,7 @@ class ProductAdmin(ModelView, model=Product):
         Product.razdel,     # 🔥 имя раздела
         Product.photo,
         Product.gif,
+        Product.prompt,
         Product.marketplace_url
     ]
 
@@ -27,6 +28,7 @@ class ProductAdmin(ModelView, model=Product):
         Product.price,
         Product.photo,
         Product.gif,
+        Product.prompt,
         Product.marketplace_url
     ]
 
