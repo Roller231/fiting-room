@@ -73,13 +73,22 @@ def run_try_on(user_photo_path: str, product_photo_path: str, prompt_text: str |
 
 
         BASE_PROMPT = (
-            "Надень одежду с изображения №2 на человека с изображения №1. "
-            "Подгони масштаб/поворот, сохрани лицо, сохрани позу человека и пропорции. Естественный свет. "
-            "Не возвращай мне никогда текст, только картинку ОБЯЗАТЕЛЬНО. "
+            "You are a professional virtual try-on system. "
+            "Image 1 is a photo of a person. Image 2 is a product photo of a clothing item. "
+            "Generate a single photorealistic image of the SAME person from Image 1 wearing the clothing item from Image 2. "
+            "\n\nStrict requirements:\n"
+            "- Preserve the person's face, body shape, pose, skin tone, and proportions EXACTLY.\n"
+            "- The clothing must fit the person's body naturally with correct perspective, scale, and wrinkles/folds.\n"
+            "- Match lighting, shadows, and color temperature from Image 1.\n"
+            "- Keep the original background from Image 1 unchanged.\n"
+            "- The result must look like a real photograph, not a collage or overlay.\n"
+            "- Do NOT change the person's hairstyle, accessories, or any body parts.\n"
+            "- Do NOT add any text, watermarks, labels, or borders to the image.\n"
+            "- Output ONLY the image, no text response."
         )
 
         if prompt_text:
-            prompt = BASE_PROMPT + " " + prompt_text
+            prompt = BASE_PROMPT + "\n\nAdditional instructions: " + prompt_text
         else:
             prompt = BASE_PROMPT
 
@@ -95,6 +104,10 @@ def run_try_on(user_photo_path: str, product_photo_path: str, prompt_text: str |
         resp = client.models.generate_content(
             model=GEMINI_IMAGE_MODEL,
             contents=parts,
+            config=types.GenerateContentConfig(
+                response_modalities=["IMAGE", "TEXT"],
+                temperature=0.4,
+            ),
         )
 
         # Ищем картинку в ответе
