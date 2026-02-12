@@ -12,6 +12,23 @@ dist
 dist-ssr
 *.local
 
+# Python / FastAPI backend
+__pycache__/
+*.py[cod]
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments (can contain >100MB binaries)
+.venv/
+ClothesBackend/.venv/
+
+# Backend generated files
+ClothesBackend/media/uploads/caches
+ClothesBackend/media/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
